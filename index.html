@@ -2,19 +2,23 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Indicadores de Calidad · Chaves & Belluccia</title>
+
+    <!-- Librerías -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx@8.2.2/build/index.min.js"></script>
 
     <style>
-        /* ===== TODOS LOS ESTILOS ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #0a0a0f;
@@ -23,7 +27,6 @@
             padding: 20px;
             line-height: 1.6;
         }
-
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -35,13 +38,12 @@
             background: #4a4a6a;
             border-radius: 3px;
         }
-
         .app {
             max-width: 1200px;
             margin: 0 auto;
         }
 
-        /* ===== HEADER ===== */
+        /* HEADER */
         .header {
             display: flex;
             justify-content: space-between;
@@ -52,13 +54,11 @@
             flex-wrap: wrap;
             gap: 15px;
         }
-
         .header-left {
             display: flex;
             align-items: center;
             gap: 16px;
         }
-
         .logo-icon {
             background: linear-gradient(135deg, #6c5ce7, #a29bfe);
             width: 52px;
@@ -72,7 +72,6 @@
             color: white;
             font-family: 'Georgia', serif;
         }
-
         .header h1 {
             font-size: 1.5rem;
             font-weight: 600;
@@ -81,7 +80,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
         .header-sub {
             color: #6a6a8a;
             font-size: 0.8rem;
@@ -89,12 +87,10 @@
             display: block;
             margin-top: 2px;
         }
-
         .header-sub strong {
             color: #a8a8c0;
             font-weight: 500;
         }
-
         .badge-status {
             background: #1e1e2e;
             padding: 6px 16px;
@@ -105,13 +101,264 @@
             border: 1px solid #2a2a3e;
             letter-spacing: 0.3px;
         }
-
-        .badge-status.active {
-            color: #6c5ce7;
-            border-color: #6c5ce7;
+        .badge-status.pro {
+            color: #55efc4;
+            border-color: #55efc4;
+        }
+        .badge-status.demo-locked {
+            color: #ff6b6b;
+            border-color: #ff6b6b;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .btn-upgrade {
+            background: linear-gradient(135deg, #fdcb6e, #f39c12);
+            color: #0a0a0f;
+            font-weight: 600;
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+        .btn-upgrade:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(243, 156, 18, 0.3);
+        }
+        .credit-display {
+            background: #14141f;
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 1px solid #2a2a3e;
+            font-size: 0.8rem;
+            color: #a8a8c0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .credit-display .num {
+            color: #55efc4;
+            font-weight: 700;
+            font-size: 0.9rem;
         }
 
-        /* ===== UPLOAD ===== */
+        /* PLANES */
+        .planes-section {
+            background: #14141f;
+            border-radius: 16px;
+            padding: 24px;
+            margin: 20px 0;
+            border: 1px solid #1a1a28;
+            display: none;
+        }
+        .planes-section.active {
+            display: block;
+            animation: fadeUp 0.4s ease;
+        }
+        .planes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-top: 16px;
+        }
+        .plan-card {
+            background: #0a0a12;
+            border-radius: 14px;
+            padding: 24px;
+            border: 1px solid #1a1a28;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .plan-card:hover {
+            transform: translateY(-4px);
+            border-color: #2a2a3e;
+        }
+        .plan-card.pro {
+            border-color: #55efc4;
+            background: #0f1a15;
+        }
+        .plan-card .plan-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #e8e8f0;
+        }
+        .plan-card .plan-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #a29bfe;
+            margin: 8px 0;
+        }
+        .plan-card .plan-price small {
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: #6a6a8a;
+        }
+        .plan-card .plan-evals {
+            color: #6a6a8a;
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+        }
+        .plan-card .plan-features {
+            list-style: none;
+            padding: 0;
+            margin: 16px 0;
+            text-align: left;
+        }
+        .plan-card .plan-features li {
+            padding: 4px 0;
+            color: #a8a8c0;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .plan-card .plan-features li .check {
+            color: #55efc4;
+        }
+        .plan-card .plan-features li .cross {
+            color: #ff6b6b;
+        }
+        .plan-card .btn-plan {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        .plan-card .btn-plan.pro-btn {
+            background: linear-gradient(135deg, #00b894, #55efc4);
+            color: #0a0a0f;
+        }
+        .plan-card .btn-plan.pro-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 184, 148, 0.3);
+        }
+
+        /* QR */
+        .qr-section {
+            background: #14141f;
+            border-radius: 16px;
+            padding: 24px;
+            margin: 20px 0;
+            border: 1px solid #1a1a28;
+            display: none;
+        }
+        .qr-section.active {
+            display: block;
+            animation: fadeUp 0.4s ease;
+        }
+        .qr-container {
+            text-align: center;
+            padding: 20px;
+            background: #0a0a12;
+            border-radius: 12px;
+            border: 1px solid #1a1a28;
+        }
+        .qr-container img {
+            max-width: 250px;
+            border-radius: 12px;
+            border: 2px solid #2a2a3e;
+        }
+        .qr-container .qr-datos {
+            margin-top: 16px;
+            color: #a8a8c0;
+            font-size: 0.9rem;
+        }
+        .qr-container .qr-datos strong {
+            color: #e8e8f0;
+        }
+        .qr-container .btn-whatsapp {
+            margin-top: 16px;
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .qr-container .btn-whatsapp:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 30px rgba(37, 211, 102, 0.3);
+        }
+        .qr-container .btn-cerrar {
+            margin-top: 12px;
+            background: #1a1a28;
+            color: #a8a8c0;
+            border: 1px solid #2a2a3e;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+        .qr-container .btn-cerrar:hover {
+            background: #2a2a3e;
+        }
+
+        /* ACTIVAR CÓDIGO */
+        .codigo-section {
+            background: #14141f;
+            border-radius: 16px;
+            padding: 24px;
+            margin: 20px 0;
+            border: 1px solid #1a1a28;
+            display: none;
+        }
+        .codigo-section.active {
+            display: block;
+            animation: fadeUp 0.4s ease;
+        }
+        .codigo-section .input-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        .codigo-section input {
+            flex: 1;
+            padding: 12px 16px;
+            background: #0a0a12;
+            border: 1px solid #1a1a28;
+            border-radius: 10px;
+            color: #e8e8f0;
+            font-size: 1rem;
+            font-family: inherit;
+            min-width: 200px;
+        }
+        .codigo-section input:focus {
+            outline: none;
+            border-color: #6c5ce7;
+        }
+        .codigo-section .btn-activar {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .codigo-section .btn-activar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(108, 92, 231, 0.3);
+        }
+
+        /* UPLOAD */
         .upload-area {
             border: 2px dashed #1e1e2e;
             border-radius: 20px;
@@ -122,44 +369,37 @@
             background: #0f0f18;
             margin-bottom: 25px;
         }
-
         .upload-area:hover {
             border-color: #6c5ce7;
             background: #14141f;
             transform: translateY(-2px);
         }
-
         .upload-area.dragover {
             border-color: #6c5ce7;
             background: #18182a;
             transform: scale(1.01);
         }
-
         .upload-area .icon {
             font-size: 48px;
             margin-bottom: 12px;
             display: block;
             opacity: 0.7;
         }
-
         .upload-area .title {
             font-size: 1.1rem;
             font-weight: 500;
             color: #e8e8f0;
         }
-
         .upload-area .sub {
             color: #6a6a8a;
             font-size: 0.9rem;
             margin-top: 4px;
         }
-
         .upload-area .hint {
             color: #4a4a6a;
             font-size: 0.8rem;
             margin-top: 12px;
         }
-
         .upload-buttons {
             display: flex;
             gap: 10px;
@@ -167,7 +407,6 @@
             margin-top: 16px;
             flex-wrap: wrap;
         }
-
         .upload-tips {
             margin-top: 15px;
             padding: 15px 18px;
@@ -176,14 +415,12 @@
             border: 1px solid #1a1a28;
             text-align: left;
         }
-
         .upload-tips .tip-title {
             color: #a8a8c0;
             font-size: 0.8rem;
             font-weight: 500;
             margin-bottom: 6px;
         }
-
         .upload-tips ul {
             margin: 4px 0 0 20px;
             color: #6a6a8a;
@@ -191,12 +428,10 @@
             list-style: disc;
             line-height: 1.6;
         }
-
         .upload-tips ul li strong {
             color: #a8a8c0;
             font-weight: 500;
         }
-
         .btn {
             padding: 10px 24px;
             border: none;
@@ -210,49 +445,40 @@
             gap: 8px;
             font-family: inherit;
         }
-
         .btn-ghost {
             background: #1a1a28;
             color: #c8c8e0;
             border: 1px solid #2a2a3e;
         }
-
         .btn-ghost:hover {
             background: #2a2a3e;
             transform: translateY(-2px);
         }
-
         .btn-success {
             background: linear-gradient(135deg, #00b894, #55efc4);
             color: #0a0a0f;
         }
-
         .btn-success:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 30px rgba(0, 184, 148, 0.3);
         }
-
         .btn-success:disabled {
             opacity: 0.4;
             cursor: not-allowed;
             transform: none !important;
         }
-
-        .btn-outline {
-            background: transparent;
-            color: #c8c8e0;
-            border: 1px solid #2a2a3e;
+        .btn-pro {
+            background: linear-gradient(135deg, #fdcb6e, #f39c12);
+            color: #0a0a0f;
+            font-weight: 600;
         }
-
-        .btn-outline:hover {
-            background: #1a1a28;
+        .btn-pro:hover {
             transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(243, 156, 18, 0.3);
         }
-
         #fileInput {
             display: none;
         }
-
         #preview {
             max-width: 100%;
             max-height: 400px;
@@ -261,9 +487,35 @@
             border-radius: 16px;
             box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
             border: 1px solid #1e1e2e;
+            cursor: pointer;
+        }
+        .preview-wrapper {
+            position: relative;
+            display: inline-block;
+            margin: 15px auto;
+            width: 100%;
+            text-align: center;
+        }
+        .btn-crop {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(108, 92, 231, 0.9);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+        }
+        .btn-crop:hover {
+            background: rgba(108, 92, 231, 1);
+            transform: scale(1.05);
         }
 
-        /* ===== FORM ===== */
+        /* FORM */
         .form-section {
             background: #0f0f18;
             border-radius: 16px;
@@ -271,32 +523,27 @@
             margin: 20px 0;
             border: 1px solid #1a1a28;
         }
-
         .form-section .label {
             font-weight: 500;
             color: #c8c8e0;
             font-size: 0.9rem;
             margin-bottom: 4px;
         }
-
         .form-section .hint {
             color: #6a6a8a;
             font-size: 0.8rem;
             margin-bottom: 14px;
         }
-
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 14px;
         }
-
         .form-group {
             display: flex;
             flex-direction: column;
             gap: 4px;
         }
-
         .form-group label {
             font-weight: 500;
             color: #a8a8c0;
@@ -304,7 +551,6 @@
             text-transform: uppercase;
             letter-spacing: 0.3px;
         }
-
         .form-group input {
             padding: 10px 14px;
             background: #0a0a12;
@@ -315,15 +561,52 @@
             transition: all 0.3s;
             font-family: inherit;
         }
-
         .form-group input::placeholder {
             color: #4a4a6a;
         }
-
         .form-group input:focus {
             outline: none;
             border-color: #6c5ce7;
             box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.15);
+        }
+
+        /* NIVEL SELECTOR */
+        .nivel-selector {
+            display: flex;
+            gap: 12px;
+            margin: 18px 0 8px;
+            flex-wrap: wrap;
+        }
+        .nivel-selector .nivel-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 2px solid #1a1a28;
+            background: #0a0a12;
+            color: #a8a8c0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 120px;
+        }
+        .nivel-selector .nivel-btn:hover {
+            border-color: #2a2a3e;
+        }
+        .nivel-selector .nivel-btn.active {
+            border-color: #6c5ce7;
+            background: #14141f;
+            color: #e8e8f0;
+        }
+        .nivel-selector .nivel-btn .nivel-nombre {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .nivel-selector .nivel-btn .nivel-costo {
+            font-size: 0.75rem;
+            color: #6a6a8a;
+        }
+        .nivel-selector .nivel-btn.active .nivel-costo {
+            color: #a8a8c0;
         }
 
         .btn-evaluate {
@@ -333,18 +616,20 @@
             margin: 18px 0 8px;
             border-radius: 14px;
         }
+        .btn-evaluate:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
 
-        /* ===== LOADING ===== */
+        /* LOADING */
         .loading {
             display: none;
             text-align: center;
             padding: 50px 20px;
         }
-
         .loading.active {
             display: block;
         }
-
         .spinner {
             width: 44px;
             height: 44px;
@@ -354,7 +639,6 @@
             animation: spin 0.7s linear infinite;
             margin: 0 auto 18px;
         }
-
         @keyframes spin {
             0% {
                 transform: rotate(0deg);
@@ -363,7 +647,6 @@
                 transform: rotate(360deg);
             }
         }
-
         .loading p {
             color: #a8a8c0;
         }
@@ -372,17 +655,15 @@
             font-size: 0.85rem;
         }
 
-        /* ===== RESULTS ===== */
+        /* RESULTS */
         #results {
             display: none;
             margin-top: 30px;
             animation: fadeUp 0.6s ease;
         }
-
         #results.active {
             display: block;
         }
-
         @keyframes fadeUp {
             from {
                 opacity: 0;
@@ -394,14 +675,13 @@
             }
         }
 
-        /* ===== REPORT ===== */
+        /* REPORT */
         #report {
             background: #0f0f18;
             border-radius: 20px;
             padding: 30px 35px;
             border: 1px solid #1a1a28;
         }
-
         #report-content {
             background: #0f0f18;
         }
@@ -416,27 +696,22 @@
             padding-bottom: 20px;
             border-bottom: 1px solid #1a1a28;
         }
-
         .report-header .left h2 {
             font-size: 1.4rem;
             font-weight: 600;
             color: #e8e8f0;
         }
-
         .report-header .left .meta {
             color: #6a6a8a;
             font-size: 0.85rem;
             margin-top: 4px;
         }
-
         .report-header .left .meta strong {
             color: #a8a8c0;
         }
-
         .report-header .right {
             text-align: right;
         }
-
         .score-big {
             font-size: 3rem;
             font-weight: 700;
@@ -445,13 +720,11 @@
             -webkit-text-fill-color: transparent;
             line-height: 1;
         }
-
         .score-big-label {
             color: #6a6a8a;
             font-size: 0.8rem;
             font-weight: 400;
         }
-
         .report-actions {
             display: flex;
             gap: 10px;
@@ -459,22 +732,64 @@
             justify-content: flex-end;
             flex-wrap: wrap;
         }
+        .pro-badge {
+            background: linear-gradient(135deg, #fdcb6e, #f39c12);
+            color: #0a0a0f;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 6px;
+        }
+        .report-image {
+            max-width: 150px;
+            max-height: 120px;
+            border-radius: 8px;
+            border: 1px solid #1a1a28;
+            margin: 8px 0;
+            object-fit: contain;
+        }
 
-        /* ===== CHARTS ===== */
+        /* DIAGNÓSTICO */
+        .diagnostico-box {
+            background: #14141f;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin: 16px 0;
+            border-left: 5px solid #6c5ce7;
+        }
+        .diagnostico-box .nivel {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .diagnostico-box .descripcion {
+            color: #a8a8c0;
+            font-size: 0.9rem;
+        }
+        .diagnostico-box .recomendacion {
+            color: #6a6a8a;
+            font-size: 0.85rem;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #1a1a28;
+        }
+
+        /* CHARTS */
         .charts-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 25px;
             margin: 25px 0;
         }
-
         .chart-box {
             background: #0a0a12;
             border-radius: 14px;
             padding: 20px;
             border: 1px solid #1a1a28;
         }
-
         .chart-box h4 {
             color: #a8a8c0;
             font-size: 0.75rem;
@@ -483,44 +798,37 @@
             margin-bottom: 12px;
             font-weight: 500;
         }
-
         .chart-box canvas {
             max-height: 200px;
             max-width: 100%;
         }
 
-        /* ===== CATEGORIES ===== */
         .categories-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
             margin: 20px 0;
         }
-
         .cat-card {
             background: #0a0a12;
             border-radius: 12px;
             padding: 16px 18px;
             border-left: 4px solid #6c5ce7;
         }
-
         .cat-card .top {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-
         .cat-card .name {
             font-weight: 500;
             color: #c8c8e0;
             font-size: 0.9rem;
         }
-
         .cat-card .score {
             font-weight: 700;
             font-size: 1.2rem;
         }
-
         .cat-card .bar {
             margin-top: 8px;
             height: 4px;
@@ -528,7 +836,6 @@
             border-radius: 4px;
             overflow: hidden;
         }
-
         .cat-card .bar .fill {
             height: 100%;
             border-radius: 4px;
@@ -536,14 +843,12 @@
             width: 0%;
         }
 
-        /* ===== INDICATORS ===== */
         .indicators-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
             margin-top: 15px;
         }
-
         .ind-card {
             background: #0a0a12;
             border-radius: 10px;
@@ -551,36 +856,30 @@
             border: 1px solid #14141f;
             transition: all 0.2s;
         }
-
         .ind-card:hover {
             border-color: #2a2a3e;
         }
-
         .ind-card .head {
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 8px;
         }
-
         .ind-card .name {
             font-weight: 500;
             color: #c8c8e0;
             font-size: 0.85rem;
         }
-
         .ind-card .puntaje {
             font-weight: 700;
             font-size: 1rem;
             color: #a29bfe;
             white-space: nowrap;
         }
-
         .ind-card .puntaje.na {
             color: #6a6a8a;
             font-size: 0.75rem;
         }
-
         .ind-card .na-badge {
             background: #2a1a1a;
             color: #ff6b6b;
@@ -590,20 +889,17 @@
             font-weight: 600;
             letter-spacing: 0.3px;
         }
-
         .ind-card .just {
             color: #a8a8c0;
             font-size: 0.82rem;
             margin-top: 6px;
             line-height: 1.5;
         }
-
         .ind-card .conf {
             color: #4a4a6a;
             font-size: 0.7rem;
             margin-top: 6px;
         }
-
         .ind-card .pregunta {
             color: #6a6a8a;
             font-size: 0.7rem;
@@ -613,7 +909,6 @@
             padding-top: 4px;
         }
 
-        /* ===== RECOMENDACIONES ===== */
         .recomendaciones-box {
             background: #14141f;
             border-radius: 12px;
@@ -621,14 +916,12 @@
             margin-top: 20px;
             border: 1px solid #1a1a28;
         }
-
         .recomendaciones-box .title {
             color: #a8a8c0;
             font-size: 0.85rem;
             font-weight: 500;
             margin-bottom: 8px;
         }
-
         .recomendaciones-box .rec-item {
             padding: 6px 0;
             border-bottom: 1px solid #1a1a28;
@@ -636,40 +929,34 @@
             gap: 10px;
             align-items: flex-start;
         }
-
         .recomendaciones-box .rec-item:last-child {
             border-bottom: none;
         }
-
         .recomendaciones-box .rec-indicador {
             font-weight: 500;
             color: #a8a8c0;
             font-size: 0.8rem;
             min-width: 140px;
         }
-
         .recomendaciones-box .rec-texto {
             color: #6a6a8a;
             font-size: 0.8rem;
             line-height: 1.4;
         }
-
         .recomendaciones-box .rec-texto .puntaje-bajo {
             color: #ff6b6b;
             font-weight: 500;
         }
-
         .recomendaciones-box .rec-texto .puntaje-medio {
             color: #fdcb6e;
             font-weight: 500;
         }
-
         .recomendaciones-box .rec-texto .puntaje-alto {
             color: #55efc4;
             font-weight: 500;
         }
 
-        /* ===== TOAST ===== */
+        /* TOAST */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -688,23 +975,18 @@
             animation: slideUp 0.3s ease;
             max-width: 400px;
         }
-
         .toast.show {
             display: flex;
         }
-
         .toast .icon {
             font-size: 24px;
         }
-
         .toast .msg {
             flex: 1;
         }
-
         .toast .msg strong {
             color: #55efc4;
         }
-
         @keyframes slideUp {
             from {
                 opacity: 0;
@@ -716,7 +998,7 @@
             }
         }
 
-        /* ===== MODAL ===== */
+        /* MODAL */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -729,13 +1011,11 @@
             padding: 40px 20px;
             overflow-y: auto;
         }
-
         .modal-overlay.active {
             display: flex;
             align-items: flex-start;
             justify-content: center;
         }
-
         .modal {
             background: #0f0f18;
             border: 1px solid #1a1a28;
@@ -748,7 +1028,6 @@
             position: relative;
             animation: fadeUp 0.3s ease;
         }
-
         .modal .close-btn {
             position: sticky;
             top: 0;
@@ -762,11 +1041,9 @@
             border-radius: 8px;
             z-index: 10;
         }
-
         .modal .close-btn:hover {
             background: #2a2a3e;
         }
-
         .modal .modal-header {
             display: flex;
             justify-content: space-between;
@@ -775,17 +1052,15 @@
             gap: 10px;
             margin-bottom: 15px;
         }
-
         .modal .modal-header h3 {
             color: #e8e8f0;
             font-size: 1.1rem;
         }
-
         .modal .modal-header .actions {
             display: flex;
             gap: 10px;
+            flex-wrap: wrap;
         }
-
         .modal pre {
             white-space: pre-wrap;
             word-wrap: break-word;
@@ -801,37 +1076,7 @@
             max-height: 60vh;
         }
 
-        /* ===== API INFO ===== */
-        .api-info {
-            background: #14141f;
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin-top: 15px;
-            border: 1px solid #1a1a28;
-        }
-
-        .api-info .title {
-            color: #a8a8c0;
-            font-size: 0.8rem;
-            font-weight: 500;
-            margin-bottom: 6px;
-        }
-
-        .api-info .content {
-            color: #6a6a8a;
-            font-size: 0.78rem;
-            line-height: 1.6;
-        }
-
-        .api-info .content strong {
-            color: #a8a8c0;
-        }
-
-        .api-info .content .highlight {
-            color: #55efc4;
-        }
-
-        /* ===== FOOTER ===== */
+        /* FOOTER */
         .footer-note {
             margin-top: 25px;
             padding: 14px 20px;
@@ -842,12 +1087,66 @@
             font-size: 0.8rem;
             border: 1px solid #14141f;
         }
-
         .footer-note strong {
             color: #a8a8c0;
         }
 
-        /* ===== RESPONSIVE ===== */
+        /* CROPPER */
+        .cropper-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 3000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .cropper-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cropper-container-custom {
+            background: #0f0f18;
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .cropper-container-custom .header-crop {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .cropper-container-custom .header-crop h3 {
+            color: #e8e8f0;
+        }
+        .cropper-container-custom .img-container {
+            max-height: 500px;
+            overflow: hidden;
+            border-radius: 12px;
+            background: #0a0a12;
+        }
+        .cropper-container-custom .img-container img {
+            max-width: 100%;
+            display: block;
+        }
+        .cropper-container-custom .crop-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 12px;
@@ -859,7 +1158,15 @@
             .header h1 {
                 font-size: 1.3rem;
             }
+            .header-actions {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
             .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .planes-grid {
                 grid-template-columns: 1fr;
             }
             .charts-row {
@@ -870,6 +1177,12 @@
             }
             .indicators-grid {
                 grid-template-columns: 1fr;
+            }
+            .nivel-selector {
+                flex-direction: column;
+            }
+            .nivel-selector .nivel-btn {
+                flex: none;
             }
             #report {
                 padding: 18px;
@@ -895,15 +1208,6 @@
                 width: 100%;
                 justify-content: center;
             }
-            .recomendaciones-box .rec-item {
-                flex-direction: column;
-                gap: 2px;
-                padding: 8px 0;
-            }
-            .recomendaciones-box .rec-indicador {
-                min-width: auto;
-                font-size: 0.75rem;
-            }
             .toast {
                 bottom: 15px;
                 right: 15px;
@@ -923,6 +1227,16 @@
                 flex-direction: column;
             }
             .modal .modal-header .actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .qr-container img {
+                max-width: 180px;
+            }
+            .codigo-section .input-group {
+                flex-direction: column;
+            }
+            .codigo-section .btn-activar {
                 width: 100%;
                 justify-content: center;
             }
@@ -950,6 +1264,9 @@
             .ind-card {
                 padding: 10px 12px;
             }
+            .qr-container img {
+                max-width: 150px;
+            }
         }
     </style>
 </head>
@@ -966,10 +1283,88 @@
                     <span class="header-sub"><strong>14 indicadores</strong> · Chaves &amp; Belluccia (2003)</span>
                 </div>
             </div>
-            <div>
+            <div class="header-actions">
+                <span class="credit-display">
+                    💰 Créditos: <span class="num" id="creditCount">0</span>
+                </span>
                 <span class="badge-status" id="statusBadge">● DEMO</span>
+                <button class="btn-upgrade" id="btnUpgrade">⬆️ Comprar créditos</button>
             </div>
         </header>
+
+        <!-- ===== PLANES ===== -->
+        <div class="planes-section" id="planesSection">
+            <h3 style="color:#e8e8f0;margin-bottom:4px;">Compra créditos</h3>
+            <p style="color:#6a6a8a;font-size:0.9rem;">1 evaluación STANDAR = 2.5 créditos · 1 evaluación PRO = 5 créditos</p>
+
+            <div class="planes-grid">
+                <div class="plan-card">
+                    <div class="plan-name">Básico</div>
+                    <div class="plan-price">$10 <small>USD</small></div>
+                    <div class="plan-evals">10 créditos · 4 STANDAR · 2 PRO</div>
+                    <ul class="plan-features">
+                        <li><span class="check">✅</span> 10 créditos</li>
+                        <li><span class="check">✅</span> Válido 1 año</li>
+                    </ul>
+                    <button class="btn-plan pro-btn" data-plan="basic">Comprar $10</button>
+                </div>
+
+                <div class="plan-card pro">
+                    <div class="plan-name">Estándar <span style="font-size:0.7rem;color:#55efc4;">★ POPULAR</span></div>
+                    <div class="plan-price">$25 <small>USD</small></div>
+                    <div class="plan-evals">30 créditos · 12 STANDAR · 6 PRO</div>
+                    <ul class="plan-features">
+                        <li><span class="check">✅</span> 30 créditos</li>
+                        <li><span class="check">✅</span> Válido 1 año</li>
+                        <li><span class="check">✅</span> Ahorras $5</li>
+                    </ul>
+                    <button class="btn-plan pro-btn" data-plan="standard">Comprar $25</button>
+                </div>
+
+                <div class="plan-card">
+                    <div class="plan-name">Premium</div>
+                    <div class="plan-price">$65 <small>USD</small></div>
+                    <div class="plan-evals">100 créditos · 40 STANDAR · 20 PRO</div>
+                    <ul class="plan-features">
+                        <li><span class="check">✅</span> 100 créditos</li>
+                        <li><span class="check">✅</span> Válido 1 año</li>
+                        <li><span class="check">✅</span> Ahorras $35</li>
+                        <li><span class="check">✅</span> Soporte prioritario</li>
+                    </ul>
+                    <button class="btn-plan pro-btn" data-plan="premium">Comprar $65</button>
+                </div>
+            </div>
+
+            <!-- Activar código -->
+            <div style="margin-top:20px;padding-top:20px;border-top:1px solid #1a1a28;">
+                <p style="color:#a8a8c0;font-size:0.9rem;">¿Ya tienes un código de activación?</p>
+                <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;">
+                    <input type="text" id="codigoInput" placeholder="Ej: IC-2024-001" style="flex:1;padding:10px 14px;background:#0a0a12;border:1px solid #1a1a28;border-radius:10px;color:#e8e8f0;font-size:0.95rem;min-width:200px;">
+                    <button class="btn btn-success" id="btnActivarCodigo">Activar código</button>
+                </div>
+                <div id="codigoMensaje" style="margin-top:8px;font-size:0.85rem;color:#6a6a8a;"></div>
+            </div>
+        </div>
+
+        <!-- ===== QR ===== -->
+        <div class="qr-section" id="qrSection">
+            <h3 style="color:#e8e8f0;margin-bottom:4px;">📱 Pago con QR</h3>
+            <p style="color:#6a6a8a;font-size:0.9rem;" id="qrInfo">Escanea el QR con tu banco</p>
+
+            <div class="qr-container">
+                <div id="qrImagen"></div>
+                <div class="qr-datos" id="qrDatos">
+                    <p><strong>Titular:</strong> RAMIREZ MURGA MARCO ANTONIO</p>
+                    <p><strong>Cuenta:</strong> 1051090058</p>
+                    <p><strong>Banco:</strong> Banco Ganadero</p>
+                </div>
+                <button class="btn-whatsapp" id="btnWhatsApp">
+                    📱 Contactar por WhatsApp
+                </button>
+                <br>
+                <button class="btn-cerrar" id="btnCerrarQR">Cerrar</button>
+            </div>
+        </div>
 
         <!-- ===== UPLOAD ===== -->
         <div class="upload-area" id="uploadArea">
@@ -993,7 +1388,10 @@
             </div>
         </div>
 
-        <img id="preview" alt="Vista previa de la marca">
+        <div class="preview-wrapper">
+            <img id="preview" alt="Vista previa de la marca">
+            <button class="btn-crop" id="btnCrop" style="display:none;">✂️ Recortar</button>
+        </div>
 
         <!-- ===== CONTEXTO ===== -->
         <div class="form-section">
@@ -1019,6 +1417,22 @@
             </div>
         </div>
 
+        <!-- ===== NIVEL SELECTOR ===== -->
+        <div class="nivel-selector" id="nivelSelector">
+            <button class="nivel-btn active" data-nivel="demo">
+                <div class="nivel-nombre">🎯 DEMO</div>
+                <div class="nivel-costo">Gratis · 1 cada 12h</div>
+            </button>
+            <button class="nivel-btn" data-nivel="standar">
+                <div class="nivel-nombre">📄 STANDAR</div>
+                <div class="nivel-costo">2.5 créditos · PNG + TXT + PDF</div>
+            </button>
+            <button class="nivel-btn" data-nivel="pro">
+                <div class="nivel-nombre">🧠 PRO</div>
+                <div class="nivel-costo">5 créditos · IA · PDF + DOCX</div>
+            </button>
+        </div>
+
         <!-- ===== EVALUAR ===== -->
         <button class="btn btn-success btn-evaluate" id="evaluateBtn" disabled>
             Evaluar indicadores
@@ -1028,35 +1442,44 @@
         <div class="loading" id="loading">
             <div class="spinner"></div>
             <p>Aplicando los 14 indicadores de calidad gráfica</p>
-            <div class="sub">Evaluación en curso...</div>
+            <div class="sub" id="loadingSub">Evaluación en curso...</div>
         </div>
 
         <!-- ===== RESULTS ===== -->
         <div id="results">
             <div id="report">
-                <div id="report-content">
-                    <!-- El contenido se inyecta aquí -->
-                </div>
+                <div id="report-content"></div>
             </div>
         </div>
 
         <!-- ===== FOOTER ===== -->
         <div class="footer-note" id="footerNote">
-            <strong>Modo Demo</strong> — Resultados simulados
+            <strong>Modo Demo</strong> — <span id="demoStatus">✅ 1 evaluación disponible</span>
             <span style="display:block;margin-top:4px;font-size:0.7rem;color:#4a4a6a;">
                 Instrumento basado en Chaves &amp; Belluccia (2003) · 14 indicadores de calidad gráfica
             </span>
         </div>
 
-        <!-- ===== API INFO ===== -->
-        <div class="api-info">
-            <div class="title">¿Qué cambiaría al usar con API real (DeepSeek)?</div>
-            <div class="content">
-                <p><strong>Modo DEMO:</strong> Evaluación simulada · Puntajes aleatorios · Justificaciones genéricas · Baja precisión</p>
-                <p style="margin-top:4px;"><strong>Modo API:</strong> <span class="highlight">Evaluación REAL</span> · Analiza la imagen con visión por IA · Puntajes específicos · Justificaciones únicas · <span class="highlight">Alta precisión</span></p>
+    </div>
+
+    <!-- ===== CROPPER ===== -->
+    <div class="cropper-overlay" id="cropperOverlay">
+        <div class="cropper-container-custom">
+            <div class="header-crop">
+                <h3>✂️ Recortar imagen</h3>
+                <div>
+                    <button class="btn btn-ghost" id="cropClose">Cancelar</button>
+                    <button class="btn btn-success" id="cropConfirm">✅ Aplicar recorte</button>
+                </div>
+            </div>
+            <div class="img-container">
+                <img id="cropperImage" src="" alt="Imagen para recortar">
+            </div>
+            <div class="crop-actions">
+                <button class="btn btn-ghost" id="cropReset">⟲ Restablecer</button>
+                <button class="btn btn-ghost" id="cropRotate">🔄 Rotar</button>
             </div>
         </div>
-
     </div>
 
     <!-- ===== TOAST ===== -->
@@ -1074,6 +1497,7 @@
                 <div class="actions">
                     <button class="btn btn-ghost" id="downloadTxtBtn">Descargar .txt</button>
                     <button class="btn btn-ghost" id="copyTextBtn">Copiar</button>
+                    <button class="btn btn-pro" id="downloadDocxBtn" style="display:none;">📄 Descargar DOCX <span class="pro-badge">PRO</span></button>
                 </div>
             </div>
             <p style="color:#6a6a8a;font-size:0.85rem;margin-bottom:15px;">
@@ -1085,31 +1509,50 @@
 
     <script>
         // ============================================================
-        //  CONFIG
+        //  CONFIGURACIÓN
         // ============================================================
         const CONFIG = {
-            USE_REAL_API: false,
+            // Costo de cada nivel en créditos
+            COST_STANDAR: 2.5,
+            COST_PRO: 5,
+
+            // Límite DEMO (1 cada 12 horas)
+            DEMO_COOLDOWN_HOURS: 12,
+
+            // WhatsApp para contacto
+            WHATSAPP: '59170857324',
+
+            // DeepSeek API (configurar cuando tengas la clave)
             DEEPSEEK_API_KEY: '',
+            USE_REAL_API: false,
+
+            // ============================================================
+            //  ⚠️ INSTRUCCIONES PARA LOS QRs:
+            //  1. Convierte tus imágenes QR a Base64
+            //  2. Pega el código Base64 en la variable correspondiente
+            //  3. Guarda el archivo
+            // ============================================================
+            QRS: {
+                basic: '', // QR para $10 USD
+                standard: '', // QR para $25 USD
+                premium: '' // QR para $65 USD
+            },
+
+            // Planes de créditos
+            PLANES: [
+                { id: 'basic', credits: 10, price: 10, label: 'Básico' },
+                { id: 'standard', credits: 30, price: 25, label: 'Estándar' },
+                { id: 'premium', credits: 100, price: 65, label: 'Premium' }
+            ]
         };
 
         // ============================================================
-        //  RÚBRICA — 14 INDICADORES (Chaves & Belluccia, 2003)
+        //  RÚBRICA - 14 INDICADORES
         // ============================================================
         const INDICADORES = [
-            'Calidad gráfica genérica',
-            'Suficiencia',
-            'Reproducibilidad',
-            'Vigencia',
-            'Ajuste tipológico',
-            'Corrección estilística',
-            'Compatibilidad semántica',
-            'Versatilidad',
-            'Legibilidad',
-            'Inteligibilidad',
-            'Vocatividad',
-            'Singularidad',
-            'Declinabilidad',
-            'Pregnancia'
+            'Calidad gráfica genérica', 'Suficiencia', 'Reproducibilidad', 'Vigencia',
+            'Ajuste tipológico', 'Corrección estilística', 'Compatibilidad semántica', 'Versatilidad',
+            'Legibilidad', 'Inteligibilidad', 'Vocatividad', 'Singularidad', 'Declinabilidad', 'Pregnancia'
         ];
 
         const CATEGORIAS = {
@@ -1122,11 +1565,7 @@
         };
 
         const INDICADORES_CONTEXTO = [
-            'Ajuste tipológico',
-            'Corrección estilística',
-            'Compatibilidad semántica',
-            'Versatilidad',
-            'Singularidad'
+            'Ajuste tipológico', 'Corrección estilística', 'Compatibilidad semántica', 'Versatilidad', 'Singularidad'
         ];
 
         const COLORES = {
@@ -1137,308 +1576,500 @@
         };
 
         // ============================================================
-        //  JUSTIFICACIONES
+        //  JUSTIFICACIONES Y PREGUNTAS
         // ============================================================
-        const JUSTIFICACIONES_POR_INDICADOR = {
-            'Calidad gráfica genérica': {
-                alta: 'Los signos y su combinación poseen alta calidad tipográfica, iconográfica y cromática. Satisfacen un alto nivel de armonía estética y unidad estilística.',
-                media: 'Los signos presentan una calidad gráfica aceptable. La combinación tipográfica, iconográfica y cromática es correcta aunque podría mejorar en armonía y unidad estilística.',
-                baja: 'Los signos presentan deficiencias en su calidad gráfica. La combinación tipográfica, iconográfica y cromática es irregular y carece de la unidad estilística necesaria.'
+        const JUSTIFICACIONES_POR_INDICADOR = {};
+        INDICADORES.forEach(nombre => {
+            JUSTIFICACIONES_POR_INDICADOR[nombre] = {
+                alta: `Excelente rendimiento en "${nombre}". Cumple todos los criterios establecidos según Chaves & Belluccia.`,
+                media: `Buen rendimiento en "${nombre}". Cumple la mayoría de los criterios, aunque podría optimizarse.`,
+                baja: `Rendimiento mejorable en "${nombre}". Requiere atención en varios aspectos para alcanzar el estándar.`
+            };
+        });
+
+        const PREGUNTAS_GUIA = {};
+        INDICADORES.forEach(nombre => {
+            PREGUNTAS_GUIA[nombre] = `¿Cómo evalúa el rendimiento de "${nombre}" en esta marca?`;
+        });
+
+        // ============================================================
+        //  DIAGNÓSTICO - VERSIÓN SIMPLIFICADA (SOLO PROMEDIO GENERAL)
+        // ============================================================
+        function generarDiagnostico(promedioGeneral) {
+            let nivel, color, icono, titulo, descripcion, recomendacion;
+
+            if (promedioGeneral >= 7) {
+                nivel = 'no_necesita_ajustes';
+                color = '#55efc4';
+                icono = '🟢';
+                titulo = 'No necesita ajustes';
+                descripcion = 'La marca presenta un rendimiento excelente. Mantiene los estándares de calidad establecidos por Chaves & Belluccia (2003).';
+                recomendacion = 'Mantener la estrategia actual. Realizar auditorías periódicas para asegurar la continuidad del rendimiento.';
+            } else if (promedioGeneral >= 5) {
+                nivel = 'leve_ajuste';
+                color = '#fdcb6e';
+                icono = '🟡';
+                titulo = 'Leve ajuste';
+                descripcion = 'La marca presenta un rendimiento bueno, con pequeños márgenes de mejora.';
+                recomendacion = 'Revisar los detalles menores que podrían optimizarse para alcanzar la excelencia.';
+            } else if (promedioGeneral >= 3.5) {
+                nivel = 'necesita_ajustes';
+                color = '#ff9f43';
+                icono = '🟠';
+                titulo = 'Necesita ajustes';
+                descripcion = 'La marca presenta deficiencias que requieren intervención en aspectos específicos.';
+                recomendacion = 'Identificar los indicadores con menor puntuación y aplicar correcciones enfocadas.';
+            } else {
+                nivel = 'necesita_rediseno';
+                color = '#ff6b6b';
+                icono = '🔴';
+                titulo = 'Necesita rediseño';
+                descripcion = 'La marca presenta deficiencias significativas que requieren una intervención integral.';
+                recomendacion = 'Abordar un programa completo de rediseño de la identificación institucional.';
+            }
+
+            return { nivel, color, icono, titulo, descripcion, recomendacion };
+        }
+
+        // ============================================================
+        //  CRÉDITOS
+        // ============================================================
+        const CreditSystem = {
+            load: function() {
+                try {
+                    const data = localStorage.getItem('ic_credits');
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        if (parsed.expiry && Date.now() < parsed.expiry) {
+                            return parsed.balance || 0;
+                        } else {
+                            localStorage.removeItem('ic_credits');
+                            return 0;
+                        }
+                    }
+                } catch (e) {}
+                return 0;
             },
-            'Suficiencia': {
-                alta: 'Los signos identificadores son los necesarios, y nada más que los necesarios, para cubrir todas las necesidades de identificación del caso.',
-                media: 'Los signos cubren las necesidades básicas de identificación, aunque podría optimizarse el repertorio para evitar carencias o excesos.',
-                baja: 'Los signos son insuficientes para cubrir las necesidades de identificación. Existen carencias o excesos que obstaculizan una clara identificación.'
+
+            save: function(balance) {
+                try {
+                    const expiry = Date.now() + (365 * 24 * 60 * 60 * 1000);
+                    localStorage.setItem('ic_credits', JSON.stringify({ balance, expiry }));
+                } catch (e) {}
             },
-            'Reproducibilidad': {
-                alta: 'Los signos resisten todo tipo de soporte material propio del caso. Su reproducción es óptima en cualquier formato y condición técnica.',
-                media: 'Los signos resisten la mayoría de los soportes materiales, aunque presentan algunas limitaciones en ciertos formatos o condiciones.',
-                baja: 'Los signos presentan graves problemas de reproducibilidad. No resisten adecuadamente los soportes materiales requeridos.'
+
+            add: function(amount) {
+                const current = this.load();
+                const newBalance = current + amount;
+                this.save(newBalance);
+                this.actualizarUI();
+                return newBalance;
             },
-            'Vigencia': {
-                alta: 'Los signos parecen contemporáneos y actuales. Su lenguaje gráfico tiene una vida útil extensa y no caducará antes que la institución.',
-                media: 'Los signos son actuales aunque podrían verse afectados por el paso del tiempo. Su vigencia es aceptable pero no excepcional.',
-                baja: 'Los signos han caducado o envejecen rápidamente. Su lenguaje gráfico está anclado en una época que ya no corresponde a la institución.'
+
+            use: function(amount) {
+                const current = this.load();
+                if (current < amount) return false;
+                const newBalance = current - amount;
+                this.save(newBalance);
+                this.actualizarUI();
+                return true;
             },
-            'Ajuste tipológico': {
-                alta: 'El tipo de signo cumple satisfactoriamente su función identificadora. Se ajusta perfectamente a las necesidades del caso concreto.',
-                media: 'El tipo de signo es adecuado aunque podría optimizarse para cumplir mejor su función identificadora.',
-                baja: 'El tipo de signo se aleja de las necesidades del caso concreto. No cumple adecuadamente su función identificadora.'
+
+            get: function() {
+                return this.load();
             },
-            'Corrección estilística': {
-                alta: 'El estilo formal del signo inscribe a la entidad en su paradigma institucional y expresa su propio talante.',
-                media: 'El estilo formal del signo es adecuado aunque presenta algunas imprecisiones que podrían mejorarse.',
-                baja: 'El estilo formal del signo desidentifica a la entidad al asociarla a lenguajes ajenos a su perfil.'
-            },
-            'Compatibilidad semántica': {
-                alta: 'Las alusiones explícitas del signo resultan adecuadas a la identidad de su usuario. La carga semántica refuerza el posicionamiento estratégico.',
-                media: 'Las alusiones del signo son compatibles aunque podrían ser más precisas para reforzar la identidad.',
-                baja: 'Las alusiones explícitas del signo se alejan de la identidad de su usuario, la contradicen o distorsionan.'
-            },
-            'Versatilidad': {
-                alta: 'Los signos se adaptan naturalmente a cualquier nivel de discurso de la entidad. Funcionan con igual rendimiento en todos los lenguajes.',
-                media: 'Los signos se adaptan a la mayoría de los niveles de discurso aunque presentan algunas limitaciones.',
-                baja: 'Los signos solo son propios de un nivel de discurso y se transcriben a la fuerza para los otros mediante versiones secundarias.'
-            },
-            'Legibilidad': {
-                alta: 'Los signos poseen suficiente claridad y contraste que facilitan su lectura en condiciones de tamaño, distancia, iluminación y movimiento.',
-                media: 'Los signos son legibles en condiciones normales aunque podrían mejorar su claridad y contraste.',
-                baja: 'Los signos presentan problemas de legibilidad. Ante el menor obstáculo dejan de ser legibles.'
-            },
-            'Inteligibilidad': {
-                alta: 'El sentido intencionado de los signos es fácilmente interpretable. No se presta a equívocos.',
-                media: 'El sentido del signo es interpretable aunque podría ser más claro para evitar cierta ambigüedad.',
-                baja: 'El sentido intencionado de los signos es confuso. Se presta a equívocos que frustran su misión.'
-            },
-            'Vocatividad': {
-                alta: 'Los signos llaman la atención en la estricta medida necesaria. No pasan desapercibidos pero tampoco resultan estridentes.',
-                media: 'Los signos tienen un llamado de atención adecuado aunque podría ajustarse mejor al caso.',
-                baja: 'Los signos resultan demasiado tenues o demasiado estentóreos para las necesidades del caso.'
-            },
-            'Singularidad': {
-                alta: 'Los signos satisfacen el grado de diferenciación necesario al caso respecto del contexto institucional específico y general.',
-                media: 'Los signos se diferencian adecuadamente aunque podrían ser más singulares para destacar mejor.',
-                baja: 'Los signos se pierden en el conjunto como unos más o se confunden demasiado con los existentes.'
-            },
-            'Declinabilidad': {
-                alta: 'Los signos presentan elementos gráficos que facilitan la codificación análoga de otros mensajes. Permiten crear un sistema coherente.',
-                media: 'Los signos permiten cierta declinación aunque podrían ser más sistemáticos para facilitar la codificación.',
-                baja: 'Los signos constituyen elementos aislados que impiden toda posible declinación y creación de sistema.'
-            },
-            'Pregnancia': {
-                alta: 'Los signos poseen una cohesión y síntesis formal que garantizan su recordabilidad y rápido reconocimiento.',
-                media: 'Los signos son recordables aunque podrían mejorar su cohesión formal para ser más pregnantes.',
-                baja: 'Los signos son morfológicamente ambiguos y de baja retención. Su complejidad dificulta su recuerdo.'
+
+            actualizarUI: function() {
+                const el = document.getElementById('creditCount');
+                if (el) {
+                    const balance = this.load();
+                    el.textContent = balance;
+                    el.style.color = balance >= CONFIG.COST_STANDAR ? '#55efc4' : '#ff6b6b';
+                }
             }
         };
 
         // ============================================================
-        //  PREGUNTAS GUÍA
+        //  DEMO LIMIT
         // ============================================================
-        const PREGUNTAS_GUIA = {
-            'Calidad gráfica genérica': '¿Los signos y su combinación poseen alta calidad tipográfica, iconográfica y cromática, o sea, satisfacen un alto nivel de armonía estética y unidad estilística?',
-            'Suficiencia': '¿Los signos identificadores son los necesarios y nada más que los necesarios para cubrir todas las necesidades de identificación del caso?',
-            'Reproducibilidad': '¿Los signos resisten todo tipo de soporte material propio del caso o presentan aplicaciones o versiones imperfectas o imposibles?',
-            'Vigencia': '¿Los signos parecen contemporáneos, actuales, durante toda la vida previsible y real de la institución o caducan rápidamente?',
-            'Ajuste tipológico': '¿El tipo de signo cumple satisfactoriamente su función identificadora o se aleja de las necesidades del caso concreto?',
-            'Corrección estilística': '¿El estilo formal del signo inscribe a la entidad en su paradigma institucional y expresa su propio talante o la desidentifica?',
-            'Compatibilidad semántica': '¿Las alusiones explícitas del signo resultan adecuadas a la identidad de su usuario o se alejan de ésta, la contradicen o distorsionan?',
-            'Versatilidad': '¿Los signos se adaptan naturalmente a cualquier nivel de discurso de la entidad o solo son propios de un nivel de discurso?',
-            'Legibilidad': '¿Los signos poseen suficiente claridad y contraste que facilitan su lectura en condiciones de tamaño, distancia, iluminación y movimiento?',
-            'Inteligibilidad': '¿El sentido intencionado de los signos es fácilmente interpretable o se presta a equívocos que frustran su misión comunicativa?',
-            'Vocatividad': '¿Los signos llaman la atención lo suficiente para no pasar desapercibidos o resultan demasiado tenues o demasiado estentóreos?',
-            'Singularidad': '¿Los signos satisfacen el grado de diferenciación necesario al caso respecto del contexto institucional específico y general?',
-            'Declinabilidad': '¿Los signos presentan elementos gráficos que faciliten la codificación análoga de otros mensajes o constituyen signos aislados?',
-            'Pregnancia': '¿Los signos poseen una cohesión y síntesis formal tales que garantizan su recordabilidad y rápido reconocimiento?'
-        };
+        const DemoLimit = {
+            load: function() {
+                try {
+                    const data = localStorage.getItem('ic_demo');
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        return { count: parsed.count || 0, lastReset: parsed.lastReset || null };
+                    }
+                } catch (e) {}
+                return { count: 0, lastReset: null };
+            },
 
-        // ============================================================
-        //  RECOMENDACIONES
-        // ============================================================
-        function obtenerRecomendacion(indicador, puntaje) {
-            const recomendaciones = {
-                'Calidad gráfica genérica': {
-                    baja: 'Revisar la calidad técnica de los trazos, proporciones y resolución. Considerar un rediseño profesional.',
-                    media: 'Pulir detalles técnicos y buscar mayor armonía en la combinación tipográfica, iconográfica y cromática.',
-                    alta: 'Mantener el alto estándar de calidad. La ejecución formal es un activo estratégico.'
-                },
-                'Suficiencia': {
-                    baja: 'Evaluar si el repertorio actual de signos cubre todas las necesidades. Considerar agregar un símbolo.',
-                    media: 'Optimizar la combinación de signos existentes. Eliminar elementos superfluos o añadir los necesarios.',
-                    alta: 'El repertorio de signos es equilibrado. Mantener la estrategia actual.'
-                },
-                'Reproducibilidad': {
-                    baja: 'Revisar la adaptabilidad a diferentes soportes. Simplificar formas y aumentar contrastes.',
-                    media: 'Mejorar la versatilidad de reproducción en formatos exigentes.',
-                    alta: 'Excelente adaptabilidad a todos los soportes. Mantener los criterios de reproducción.'
-                },
-                'Vigencia': {
-                    baja: 'Considerar una actualización del lenguaje gráfico. Los signos pueden estar asociados a una época pasada.',
-                    media: 'Revisar si algunos elementos estilísticos pueden actualizarse sin perder la identidad.',
-                    alta: 'El lenguaje gráfico es atemporal. Mantener la línea actual.'
-                },
-                'Ajuste tipológico': {
-                    baja: 'Revaluar el tipo de signo en relación con el sector y las necesidades.',
-                    media: 'Explorar si un subtipo diferente podría mejorar la identificación.',
-                    alta: 'El tipo de signo es el adecuado para el caso. Mantener.'
-                },
-                'Corrección estilística': {
-                    baja: 'El estilo actual desidentifica a la entidad. Considerar un cambio radical.',
-                    media: 'Ajustar el estilo para que exprese mejor el talante de la organización.',
-                    alta: 'El estilo es coherente con la identidad. Mantener.'
-                },
-                'Compatibilidad semántica': {
-                    baja: 'Las alusiones actuales contradicen la identidad. Considerar un rediseño.',
-                    media: 'Revisar si algunas alusiones pueden ser más precisas.',
-                    alta: 'La carga semántica refuerza la identidad. Mantener.'
-                },
-                'Versatilidad': {
-                    baja: 'Los signos solo funcionan en un nivel de discurso. Considerar un diseño más neutro.',
-                    media: 'Mejorar la capacidad de adaptación a diferentes niveles de discurso.',
-                    alta: 'Excelente adaptabilidad. Mantener.'
-                },
-                'Legibilidad': {
-                    baja: 'Mejorar el contraste, claridad y simplicidad de las formas.',
-                    media: 'Optimizar la legibilidad en condiciones exigentes.',
-                    alta: 'La legibilidad es óptima. Mantener.'
-                },
-                'Inteligibilidad': {
-                    baja: 'Revisar la claridad del mensaje. El signo debe comunicar sin ambigüedades.',
-                    media: 'Ajustar elementos que puedan generar confusión interpretativa.',
-                    alta: 'El sentido es claro y sin equívocos. Mantener.'
-                },
-                'Vocatividad': {
-                    baja: 'Aumentar el llamado de atención mediante recursos cromáticos o formales.',
-                    media: 'Ajustar el nivel de llamada de atención al perfil.',
-                    alta: 'El nivel de llamada es el adecuado. Mantener.'
-                },
-                'Singularidad': {
-                    baja: 'Diferenciarse más del contexto. Explorar elementos gráficos únicos.',
-                    media: 'Acentuar los rasgos distintivos sin perder la inscripción en el género.',
-                    alta: 'Excelente diferenciación. Mantener.'
-                },
-                'Declinabilidad': {
-                    baja: 'Crear un sistema de elementos gráficos que permita codificar otros mensajes.',
-                    media: 'Ampliar el sistema de elementos gráficos para facilitar la creación de una familia de marcas.',
-                    alta: 'El sistema permite una excelente declinación. Mantener.'
-                },
-                'Pregnancia': {
-                    baja: 'Simplificar formas para aumentar la recordabilidad. Buscar mayor cohesión formal.',
-                    media: 'Mejorar la cohesión formal y la síntesis para hacer el signo más memorable.',
-                    alta: 'La pregnancia es excelente. Mantener.'
+            save: function(count, lastReset) {
+                try {
+                    localStorage.setItem('ic_demo', JSON.stringify({
+                        count: count,
+                        lastReset: lastReset || new Date().toISOString()
+                    }));
+                } catch (e) {}
+            },
+
+            canUse: function() {
+                const data = this.load();
+                const now = new Date();
+                if (!data.lastReset) { this.save(0, now.toISOString()); return true; }
+                const lastDate = new Date(data.lastReset);
+                const hoursDiff = (now.getTime() - lastDate.getTime()) / (1000 * 60 * 60);
+                if (hoursDiff >= CONFIG.DEMO_COOLDOWN_HOURS) { this.save(0, now.toISOString()); return true; }
+                if (data.count < 1) return true;
+                return false;
+            },
+
+            registerUse: function() {
+                const data = this.load();
+                const now = new Date();
+                if (data.lastReset) {
+                    const lastDate = new Date(data.lastReset);
+                    const hoursDiff = (now.getTime() - lastDate.getTime()) / (1000 * 60 * 60);
+                    if (hoursDiff >= CONFIG.DEMO_COOLDOWN_HOURS) { this.save(1, now.toISOString()); return; }
                 }
-            };
+                this.save((data.count || 0) + 1, data.lastReset || now.toISOString());
+                this.actualizarUI();
+            },
 
-            const recs = recomendaciones[indicador];
-            if (!recs) return 'Sin recomendación específica.';
+            getRemainingTime: function() {
+                const data = this.load();
+                if (!data.lastReset) return 0;
+                const lastDate = new Date(data.lastReset);
+                const now = new Date();
+                const hoursPassed = (now.getTime() - lastDate.getTime()) / (1000 * 60 * 60);
+                return Math.max(0, CONFIG.DEMO_COOLDOWN_HOURS - hoursPassed);
+            },
 
-            if (puntaje <= 3) return recs.baja;
-            if (puntaje <= 6) return recs.media;
-            return recs.alta;
-        }
+            actualizarUI: function() {
+                const statusEl = document.getElementById('demoStatus');
+                const badgeEl = document.getElementById('statusBadge');
+                if (!statusEl) return;
+                if (this.canUse()) {
+                    statusEl.textContent = '✅ 1 evaluación DEMO disponible';
+                    statusEl.style.color = '#55efc4';
+                    if (badgeEl) { badgeEl.textContent = '● DEMO';
+                        badgeEl.className = 'badge-status'; }
+                } else {
+                    const hours = Math.ceil(this.getRemainingTime());
+                    statusEl.textContent = `⏳ Próxima evaluación en ${hours}h`;
+                    statusEl.style.color = '#fdcb6e';
+                    if (badgeEl) { badgeEl.textContent = '⏳ BLOQUEADO';
+                        badgeEl.className = 'badge-status demo-locked'; }
+                }
+            }
+        };
 
         // ============================================================
         //  DOM
         // ============================================================
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-        const fileBtn = document.getElementById('fileBtn');
-        const cameraBtn = document.getElementById('cameraBtn');
-        const preview = document.getElementById('preview');
-        const evaluateBtn = document.getElementById('evaluateBtn');
-        const loading = document.getElementById('loading');
-        const resultsDiv = document.getElementById('results');
-        const reportContent = document.getElementById('report-content');
-        const statusBadge = document.getElementById('statusBadge');
-        const footerNote = document.getElementById('footerNote');
+        const DOM = {
+            uploadArea: document.getElementById('uploadArea'),
+            fileInput: document.getElementById('fileInput'),
+            fileBtn: document.getElementById('fileBtn'),
+            cameraBtn: document.getElementById('cameraBtn'),
+            preview: document.getElementById('preview'),
+            btnCrop: document.getElementById('btnCrop'),
+            nombreMarca: document.getElementById('nombreMarca'),
+            sector: document.getElementById('sector'),
+            competidores: document.getElementById('competidores'),
+            atributos: document.getElementById('atributos'),
+            evaluateBtn: document.getElementById('evaluateBtn'),
+            loading: document.getElementById('loading'),
+            loadingSub: document.getElementById('loadingSub'),
+            results: document.getElementById('results'),
+            reportContent: document.getElementById('report-content'),
+            statusBadge: document.getElementById('statusBadge'),
+            footerNote: document.getElementById('footerNote'),
+            demoStatus: document.getElementById('demoStatus'),
+            creditCount: document.getElementById('creditCount'),
+            toast: document.getElementById('toast'),
+            toastMsg: document.getElementById('toastMsg'),
+            modalOverlay: document.getElementById('textReportOverlay'),
+            modalContent: document.getElementById('textReportContent'),
+            closeModal: document.getElementById('closeTextReport'),
+            copyBtn: document.getElementById('copyTextBtn'),
+            downloadBtn: document.getElementById('downloadTxtBtn'),
+            downloadDocxBtn: document.getElementById('downloadDocxBtn'),
+            btnUpgrade: document.getElementById('btnUpgrade'),
+            planesSection: document.getElementById('planesSection'),
+            qrSection: document.getElementById('qrSection'),
+            qrImagen: document.getElementById('qrImagen'),
+            qrInfo: document.getElementById('qrInfo'),
+            btnWhatsApp: document.getElementById('btnWhatsApp'),
+            btnCerrarQR: document.getElementById('btnCerrarQR'),
+            nivelSelector: document.getElementById('nivelSelector'),
+            codigoInput: document.getElementById('codigoInput'),
+            btnActivarCodigo: document.getElementById('btnActivarCodigo'),
+            codigoMensaje: document.getElementById('codigoMensaje'),
+            cropperOverlay: document.getElementById('cropperOverlay'),
+            cropperImage: document.getElementById('cropperImage'),
+            cropClose: document.getElementById('cropClose'),
+            cropConfirm: document.getElementById('cropConfirm'),
+            cropReset: document.getElementById('cropReset'),
+            cropRotate: document.getElementById('cropRotate'),
+        };
 
         let currentFile = null;
-        let chartInstances = {};
+        let croppedImageData = null;
         let datosActuales = null;
         let contextoActual = null;
+        let chartInstances = {};
+        let cropperInstance = null;
+        let nivelSeleccionado = 'demo';
 
         // ============================================================
         //  TOAST
         // ============================================================
         function mostrarToast(mensaje, icono = '✅') {
-            const toast = document.getElementById('toast');
-            const msg = document.getElementById('toastMsg');
-            msg.innerHTML = mensaje;
-            toast.querySelector('.icon').textContent = icono;
-            toast.classList.add('show');
-            clearTimeout(toast._timeout);
-            toast._timeout = setTimeout(() => {
-                toast.classList.remove('show');
+            DOM.toastMsg.innerHTML = mensaje;
+            DOM.toast.querySelector('.icon').textContent = icono;
+            DOM.toast.classList.add('show');
+            clearTimeout(DOM.toast._timeout);
+            DOM.toast._timeout = setTimeout(() => {
+                DOM.toast.classList.remove('show');
             }, 4000);
+        }
+
+        // ============================================================
+        //  CROPPER
+        // ============================================================
+        function abrirCropper() {
+            if (!currentFile) { mostrarToast('Primero sube una imagen', '⚠️'); return; }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                DOM.cropperImage.src = e.target.result;
+                DOM.cropperOverlay.classList.add('active');
+                if (cropperInstance) cropperInstance.destroy();
+                cropperInstance = new Cropper(DOM.cropperImage, {
+                    aspectRatio: 0,
+                    viewMode: 1,
+                    dragMode: 'move',
+                    autoCropArea: 0.8,
+                    guides: true,
+                    center: true,
+                    cropBoxMovable: true,
+                    cropBoxResizable: true,
+                });
+            };
+            reader.readAsDataURL(currentFile);
+        }
+
+        function cerrarCropper() {
+            DOM.cropperOverlay.classList.remove('active');
+            if (cropperInstance) { cropperInstance.destroy();
+                cropperInstance = null; }
+        }
+
+        function aplicarRecorte() {
+            if (!cropperInstance) return;
+            const canvas = cropperInstance.getCroppedCanvas({ width: 800, height: 800, imageSmoothingQuality: 'high' });
+            canvas.toBlob(function(blob) {
+                const croppedFile = new File([blob], 'cropped_image.png', { type: 'image/png' });
+                currentFile = croppedFile;
+                croppedImageData = URL.createObjectURL(blob);
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    DOM.preview.src = e.target.result;
+                    DOM.preview.style.display = 'block';
+                    DOM.btnCrop.style.display = 'inline-block';
+                    DOM.evaluateBtn.disabled = false;
+                    mostrarToast('Imagen recortada correctamente', '✂️');
+                };
+                reader.readAsDataURL(croppedFile);
+                cerrarCropper();
+            }, 'image/png', 1.0);
         }
 
         // ============================================================
         //  UPLOAD HANDLERS
         // ============================================================
         function handleFile(file) {
-            if (!file || !file.type.startsWith('image/')) {
-                alert('Por favor, selecciona una imagen válida.');
-                return;
-            }
+            if (!file || !file.type.startsWith('image/')) { alert('Por favor, selecciona una imagen válida.'); return; }
             currentFile = file;
+            croppedImageData = null;
             const reader = new FileReader();
             reader.onload = (e) => {
-                preview.src = e.target.result;
-                preview.style.display = 'block';
-                evaluateBtn.disabled = false;
-                uploadArea.style.borderColor = '#55efc4';
+                DOM.preview.src = e.target.result;
+                DOM.preview.style.display = 'block';
+                DOM.btnCrop.style.display = 'inline-block';
+                DOM.evaluateBtn.disabled = false;
+                DOM.uploadArea.style.borderColor = '#55efc4';
                 mostrarToast(`Imagen cargada: ${file.name}`, '📸');
             };
             reader.readAsDataURL(file);
         }
 
-        uploadArea.addEventListener('click', () => fileInput.click());
-        uploadArea.addEventListener('dragover', (e) => {
+        DOM.uploadArea.addEventListener('click', () => DOM.fileInput.click());
+        DOM.uploadArea.addEventListener('dragover', (e) => { e.preventDefault();
+            DOM.uploadArea.classList.add('dragover'); });
+        DOM.uploadArea.addEventListener('dragleave', () => { DOM.uploadArea.classList.remove('dragover'); });
+        DOM.uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
+            DOM.uploadArea.classList.remove('dragover');
             if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
         });
-
-        fileBtn.addEventListener('click', (e) => {
+        DOM.fileBtn.addEventListener('click', (e) => { e.stopPropagation();
+            DOM.fileInput.click(); });
+        DOM.cameraBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            fileInput.click();
+            DOM.fileInput.setAttribute('capture', 'environment');
+            DOM.fileInput.click();
         });
-        cameraBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            fileInput.setAttribute('capture', 'environment');
-            fileInput.click();
-        });
-        fileInput.addEventListener('change', (e) => {
+        DOM.fileInput.addEventListener('change', (e) => {
             if (e.target.files.length) handleFile(e.target.files[0]);
-            fileInput.removeAttribute('capture');
+            DOM.fileInput.removeAttribute('capture');
+        });
+        DOM.btnCrop.addEventListener('click', abrirCropper);
+        DOM.cropClose.addEventListener('click', cerrarCropper);
+        DOM.cropConfirm.addEventListener('click', aplicarRecorte);
+        DOM.cropReset.addEventListener('click', () => { if (cropperInstance) { cropperInstance.reset();
+                cropperInstance.crop(); } });
+        DOM.cropRotate.addEventListener('click', () => { if (cropperInstance) cropperInstance.rotate(90); });
+
+        // ============================================================
+        //  NIVEL SELECTOR
+        // ============================================================
+        document.querySelectorAll('.nivel-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.nivel-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                nivelSeleccionado = this.dataset.nivel;
+                actualizarBotonEvaluar();
+            });
         });
 
-        // ============================================================
-        //  EVALUATE
-        // ============================================================
-        evaluateBtn.addEventListener('click', async () => {
-            if (!currentFile) return;
+        function actualizarBotonEvaluar() {
+            const btn = DOM.evaluateBtn;
+            const nivel = nivelSeleccionado;
 
-            contextoActual = {
-                nombre_marca: document.getElementById('nombreMarca').value.trim(),
-                sector: document.getElementById('sector').value.trim(),
-                competidores: document.getElementById('competidores').value.trim(),
-                atributos_identidad: document.getElementById('atributos').value.trim()
-            };
-            const tieneContexto = contextoActual.sector || contextoActual.competidores || contextoActual.atributos_identidad;
-
-            evaluateBtn.disabled = true;
-            loading.classList.add('active');
-            resultsDiv.classList.remove('active');
-
-            try {
-                let data;
-                if (CONFIG.USE_REAL_API && CONFIG.DEEPSEEK_API_KEY) {
-                    data = await evaluarConDeepSeek(currentFile, contextoActual);
-                } else {
-                    data = generarDemo(contextoActual, tieneContexto);
-                }
-                datosActuales = data;
-                renderReport(data, contextoActual);
-                resultsDiv.classList.add('active');
-            } catch (e) {
-                alert('Error en la evaluación: ' + e.message);
-                console.error(e);
-            } finally {
-                loading.classList.remove('active');
-                evaluateBtn.disabled = false;
+            if (!currentFile) {
+                btn.disabled = true;
+                btn.textContent = 'Sube una imagen primero';
+                return;
             }
+
+            if (nivel === 'demo') {
+                if (DemoLimit.canUse()) {
+                    btn.disabled = false;
+                    btn.textContent = '🎯 Evaluar (DEMO)';
+                } else {
+                    btn.disabled = true;
+                    const hours = Math.ceil(DemoLimit.getRemainingTime());
+                    btn.textContent = `⏳ DEMO bloqueado (${hours}h)`;
+                }
+                return;
+            }
+
+            const creditos = CreditSystem.get();
+            const costo = nivel === 'standar' ? CONFIG.COST_STANDAR : CONFIG.COST_PRO;
+
+            if (creditos >= costo) {
+                btn.disabled = false;
+                btn.textContent = nivel === 'standar' ? `📄 Evaluar STANDAR (${costo} créditos)` :
+                    `🧠 Evaluar PRO (${costo} créditos)`;
+            } else {
+                btn.disabled = true;
+                btn.textContent = `⚠️ Créditos insuficientes (${costo} necesarios)`;
+            }
+        }
+
+        // ============================================================
+        //  QR Y PAGOS
+        // ============================================================
+        let planSeleccionado = null;
+
+        function togglePlanes() {
+            DOM.planesSection.classList.toggle('active');
+            DOM.qrSection.classList.remove('active');
+        }
+
+        function mostrarQR(planId) {
+            const plan = CONFIG.PLANES.find(p => p.id === planId);
+            if (!plan) return;
+
+            const qrBase64 = CONFIG.QRS[planId];
+            if (!qrBase64) {
+                mostrarToast('⚠️ QR no disponible. Contacta por WhatsApp.', '⚠️');
+                // Mostrar datos de cuenta igualmente
+                DOM.qrImagen.innerHTML =
+                    `<div style="padding:40px;background:#1a1a28;border-radius:12px;color:#6a6a8a;">📱 QR no cargado<br><span style="font-size:0.8rem;">Contacta por WhatsApp para el pago</span></div>`;
+            } else {
+                DOM.qrImagen.innerHTML = `<img src="${qrBase64}" alt="QR para pagar ${plan.price} USD">`;
+            }
+
+            planSeleccionado = plan;
+            DOM.qrInfo.textContent = `Paquete ${plan.label}: ${plan.credits} créditos · $${plan.price} USD`;
+            DOM.qrSection.classList.add('active');
+            DOM.planesSection.classList.remove('active');
+
+            const mensaje = encodeURIComponent(`Hola, quiero comprar el paquete ${plan.label} de ${plan.credits} créditos por $${plan.price} USD. Adjunto comprobante de pago.`);
+            DOM.btnWhatsApp.onclick = function() {
+                window.open(`https://wa.me/${CONFIG.WHATSAPP}?text=${mensaje}`, '_blank');
+            };
+        }
+
+        document.querySelectorAll('[data-plan]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const planId = this.dataset.plan;
+                mostrarQR(planId);
+            });
+        });
+
+        DOM.btnUpgrade.addEventListener('click', togglePlanes);
+        DOM.btnCerrarQR.addEventListener('click', () => { DOM.qrSection.classList.remove('active'); });
+
+        // ============================================================
+        //  ACTIVAR CÓDIGO
+        // ============================================================
+        DOM.btnActivarCodigo.addEventListener('click', function() {
+            const codigo = DOM.codigoInput.value.trim().toUpperCase();
+            if (!codigo) {
+                DOM.codigoMensaje.textContent = '⚠️ Ingresa un código de activación';
+                DOM.codigoMensaje.style.color = '#ff6b6b';
+                return;
+            }
+
+            const patron = /^IC-\d{4}-\d{3}$/;
+            if (!patron.test(codigo)) {
+                DOM.codigoMensaje.textContent = '⚠️ Formato incorrecto. Ejemplo: IC-2024-001';
+                DOM.codigoMensaje.style.color = '#ff6b6b';
+                return;
+            }
+
+            const partes = codigo.split('-');
+            const creditoCode = parseInt(partes[2]);
+
+            let creditos = 0;
+            if (creditoCode <= 10) creditos = 10;
+            else if (creditoCode <= 30) creditos = 30;
+            else creditos = 100;
+
+            const usados = JSON.parse(localStorage.getItem('ic_codigos_usados') || '[]');
+            if (usados.includes(codigo)) {
+                DOM.codigoMensaje.textContent = '⚠️ Este código ya fue utilizado';
+                DOM.codigoMensaje.style.color = '#ff6b6b';
+                return;
+            }
+
+            CreditSystem.add(creditos);
+            usados.push(codigo);
+            localStorage.setItem('ic_codigos_usados', JSON.stringify(usados));
+
+            DOM.codigoMensaje.textContent = `✅ ${creditos} créditos activados correctamente!`;
+            DOM.codigoMensaje.style.color = '#55efc4';
+            DOM.codigoInput.value = '';
+            CreditSystem.actualizarUI();
+            actualizarBotonEvaluar();
+            mostrarToast(`${creditos} créditos activados!`, '🎉');
         });
 
         // ============================================================
-        //  DEMO GENERATOR
+        //  GENERAR DEMO
         // ============================================================
         function generarDemo(contexto, tieneContexto) {
             const seed = (contexto.nombre_marca || 'demo').length + (contexto.sector || '').length;
@@ -1447,48 +2078,21 @@
             const indicadores = INDICADORES.map(nombre => {
                 const necesitaContexto = INDICADORES_CONTEXTO.includes(nombre);
                 const evaluable = !(necesitaContexto && !tieneContexto);
-
-                let puntaje = 0;
-                let confianza = 0;
-                let justificacion = '';
-
+                let puntaje = 0,
+                    confianza = 0,
+                    justificacion = '';
                 if (evaluable) {
                     const base = Math.floor(rng() * 7) + 2;
-                    const extra = rng() > 0.85 ? Math.floor(rng() * 3) : 0;
                     puntaje = Math.min(Math.max(base + (rng() > 0.9 ? 2 : 0), 2), 10);
                     puntaje = Math.round(puntaje / 2) * 2;
                     puntaje = Math.min(Math.max(puntaje, 2), 10);
-
                     confianza = Math.floor(rng() * 3) + 3;
-
-                    let nivel;
-                    if (puntaje >= 8) nivel = 'alta';
-                    else if (puntaje >= 5) nivel = 'media';
-                    else nivel = 'baja';
-
+                    let nivel = puntaje >= 8 ? 'alta' : puntaje >= 5 ? 'media' : 'baja';
                     const justs = JUSTIFICACIONES_POR_INDICADOR[nombre];
-                    justificacion = justs ? justs[nivel] : 'Cumple con los criterios establecidos para este indicador.';
-
-                    if (contexto.sector && puntaje >= 6) {
-                        const sectores = {
-                            'tecnología': 'en el competitivo sector tecnológico',
-                            'moda': 'en la industria de la moda',
-                            'alimentación': 'en el sector alimenticio',
-                            'automotriz': 'en la industria automotriz',
-                            'educación': 'en el ámbito educativo',
-                            'salud': 'en el sector salud',
-                            'banca': 'en el sector financiero',
-                            'telecomunicaciones': 'en el sector de telecomunicaciones'
-                        };
-                        let sectorKey = Object.keys(sectores).find(s => contexto.sector.toLowerCase().includes(s));
-                        if (sectorKey) {
-                            justificacion = justificacion.replace(/\.$/, '') + `, lo que resulta especialmente relevante ${sectores[sectorKey]}.`;
-                        }
-                    }
+                    justificacion = justs ? justs[nivel] : 'Cumple con los criterios establecidos.';
                 } else {
-                    justificacion = 'No se puede evaluar sin información de contexto (sector, competencia o atributos de identidad). Según Chaves & Belluccia, este indicador requiere datos adicionales para una valoración precisa.';
+                    justificacion = 'No se puede evaluar sin información de contexto.';
                 }
-
                 return { nombre, puntaje, justificacion, confianza, evaluable };
             });
 
@@ -1497,7 +2101,6 @@
                 const pts = indicadores.filter(i => inds.includes(i.nombre) && i.evaluable).map(i => i.puntaje);
                 promedios[cat] = pts.length ? parseFloat((pts.reduce((a, b) => a + b, 0) / pts.length).toFixed(1)) : null;
             }
-
             const todos = indicadores.filter(i => i.evaluable).map(i => i.puntaje);
             const general = todos.length ? parseFloat((todos.reduce((a, b) => a + b, 0) / todos.length).toFixed(1)) : 0;
 
@@ -1578,13 +2181,8 @@
                 },
                 body: JSON.stringify({
                     model: 'deepseek-vision',
-                    messages: [{
-                        role: 'user',
-                        content: [
-                            { type: 'text', text: prompt },
-                            { type: 'image_url', image_url: { url: base64 } }
-                        ]
-                    }],
+                    messages: [{ role: 'user', content: [{ type: 'text', text: prompt }, { type: 'image_url',
+                            image_url: { url: base64 } }] }],
                     temperature: 0.3,
                     max_tokens: 4000,
                     response_format: { type: 'json_object' }
@@ -1598,11 +2196,7 @@
 
             const data = await response.json();
             const contenido = JSON.parse(data.choices[0].message.content);
-
-            return {
-                ...contenido,
-                modo: 'api'
-            };
+            return { ...contenido, modo: 'api' };
         }
 
         function fileToBase64(file) {
@@ -1615,11 +2209,97 @@
         }
 
         // ============================================================
+        //  EVALUATE
+        // ============================================================
+        DOM.evaluateBtn.addEventListener('click', async () => {
+            if (!currentFile) { mostrarToast('Primero sube una imagen', '⚠️'); return; }
+
+            const esPro = nivelSeleccionado === 'pro';
+            const esStandar = nivelSeleccionado === 'standar';
+            const esDemo = nivelSeleccionado === 'demo';
+
+            // Verificar créditos o demo
+            if (esStandar) {
+                if (!CreditSystem.use(CONFIG.COST_STANDAR)) {
+                    mostrarToast('⚠️ Créditos insuficientes para STANDAR', '⚠️');
+                    return;
+                }
+            } else if (esPro) {
+                if (!CreditSystem.use(CONFIG.COST_PRO)) {
+                    mostrarToast('⚠️ Créditos insuficientes para PRO', '⚠️');
+                    return;
+                }
+            } else {
+                if (!DemoLimit.canUse()) {
+                    const hours = Math.ceil(DemoLimit.getRemainingTime());
+                    mostrarToast(`⏳ DEMO bloqueado. Próxima en ${hours}h`, '⏳');
+                    return;
+                }
+                DemoLimit.registerUse();
+                DemoLimit.actualizarUI();
+            }
+
+            contextoActual = {
+                nombre_marca: DOM.nombreMarca.value.trim(),
+                sector: DOM.sector.value.trim(),
+                competidores: DOM.competidores.value.trim(),
+                atributos_identidad: DOM.atributos.value.trim()
+            };
+            const tieneContexto = contextoActual.sector || contextoActual.competidores || contextoActual.atributos_identidad;
+
+            DOM.evaluateBtn.disabled = true;
+            DOM.loading.classList.add('active');
+            DOM.results.classList.remove('active');
+
+            if (esPro) {
+                DOM.loadingSub.textContent = '🧠 Evaluando con IA (PRO)...';
+            } else if (esStandar) {
+                DOM.loadingSub.textContent = '📄 Evaluando STANDAR...';
+            } else {
+                DOM.loadingSub.textContent = '🎯 Evaluando DEMO...';
+            }
+
+            try {
+                let data;
+                if (esPro && CONFIG.USE_REAL_API && CONFIG.DEEPSEEK_API_KEY) {
+                    data = await evaluarConDeepSeek(currentFile, contextoActual);
+                } else {
+                    data = generarDemo(contextoActual, tieneContexto);
+                }
+
+                datosActuales = data;
+                const esProReal = esPro && CONFIG.USE_REAL_API && CONFIG.DEEPSEEK_API_KEY;
+                renderReport(data, contextoActual, esProReal, esStandar, esDemo);
+                DOM.results.classList.add('active');
+
+                if (esPro) {
+                    mostrarToast('🧠 Evaluación PRO completada', '🧠');
+                } else if (esStandar) {
+                    mostrarToast('📄 Evaluación STANDAR completada', '📄');
+                } else {
+                    mostrarToast('🎯 Evaluación DEMO completada', '🎯');
+                }
+
+            } catch (e) {
+                alert('Error en la evaluación: ' + e.message);
+                console.error(e);
+            } finally {
+                DOM.loading.classList.remove('active');
+                DOM.evaluateBtn.disabled = false;
+                actualizarBotonEvaluar();
+            }
+        });
+
+        // ============================================================
         //  RENDER REPORT
         // ============================================================
-        function renderReport(data, contexto) {
-            const { indicadores, promedios_categoria, promedio_general, modo } = data;
+        function renderReport(data, contexto, esProReal, esStandar, esDemo) {
+            const { indicadores, promedios_categoria, promedio_general } = data;
             const general = promedio_general || 0;
+
+            // Diagnóstico simplificado (solo promedio general)
+            const diagnostico = generarDiagnostico(general);
+            const imagenSrc = croppedImageData || DOM.preview.src || '';
 
             let html = '';
 
@@ -1632,8 +2312,12 @@
                             ${contexto.sector ? `<strong>Sector:</strong> ${contexto.sector}` : 'Sin sector especificado'}
                             ${contexto.competidores ? ` · <strong>Competencia:</strong> ${contexto.competidores}` : ''}
                             ${contexto.atributos_identidad ? ` · <strong>Atributos:</strong> ${contexto.atributos_identidad}` : ''}
+                            ${imagenSrc ? `<br><img src="${imagenSrc}" class="report-image" alt="Marca evaluada">` : ''}
                             <br><span style="color:#6a6a8a;font-size:0.75rem;">
                                 Basado en los 14 indicadores de Chaves &amp; Belluccia (2003)
+                                ${esProReal ? '<span class="pro-badge">PRO</span>' : ''}
+                                ${esStandar ? ' · STANDAR' : ''}
+                                ${esDemo ? ' · DEMO' : ''}
                             </span>
                         </div>
                     </div>
@@ -1644,13 +2328,31 @@
                 </div>
             `;
 
-            // Actions
+            // Diagnóstico
             html += `
-                <div class="report-actions">
-                    <button class="btn btn-ghost" id="imageBtn">Guardar como imagen</button>
-                    <button class="btn btn-ghost" id="textBtn">Ver informe textual</button>
+                <div class="diagnostico-box" style="border-left-color: ${diagnostico.color};">
+                    <div class="nivel" style="color: ${diagnostico.color};">${diagnostico.icono} ${diagnostico.titulo}</div>
+                    <div class="descripcion">${diagnostico.descripcion}</div>
+                    <div class="recomendacion">💡 ${diagnostico.recomendacion}</div>
                 </div>
             `;
+
+            // Actions - según nivel
+            let actionsHtml = `<div class="report-actions">`;
+            if (!esDemo) {
+                actionsHtml += `<button class="btn btn-ghost" id="imageBtn">🖼️ Guardar como imagen</button>`;
+                actionsHtml += `<button class="btn btn-ghost" id="textBtn">📋 Ver informe textual</button>`;
+                if (esProReal) {
+                    actionsHtml += `<button class="btn btn-pro" id="pdfBtn">📄 Exportar PDF <span class="pro-badge">PRO</span></button>`;
+                }
+                if (esStandar) {
+                    actionsHtml += `<button class="btn btn-pro" id="pdfBtnStandar">📄 Exportar PDF <span class="pro-badge">STANDAR</span></button>`;
+                }
+            } else {
+                actionsHtml += `<span style="color:#6a6a8a;font-size:0.85rem;">🔒 DEMO: solo visualización en pantalla</span>`;
+            }
+            actionsHtml += `</div>`;
+            html += actionsHtml;
 
             // Charts
             html += `<div class="charts-row">
@@ -1666,10 +2368,7 @@
                 const display = score !== null ? score.toFixed(1) : 'N/A';
                 html += `
                     <div class="cat-card" style="border-left-color:${color}">
-                        <div class="top">
-                            <span class="name">${cat}</span>
-                            <span class="score" style="color:${color}">${display}</span>
-                        </div>
+                        <div class="top"><span class="name">${cat}</span><span class="score" style="color:${color}">${display}</span></div>
                         <div class="bar"><div class="fill" style="width:${pct}%;background:${color}"></div></div>
                     </div>
                 `;
@@ -1698,10 +2397,8 @@
                     <div class="ind-card">
                         <div class="head">
                             <span class="name">${ind.nombre}</span>
-                            ${esValido ? 
-                                `<span class="puntaje" style="color:${color}">${puntaje}/10</span>` :
-                                `<span class="puntaje na">N/A <span class="na-badge">sin contexto</span></span>`
-                            }
+                            ${esValido ? `<span class="puntaje" style="color:${color}">${puntaje}/10</span>` :
+                                `<span class="puntaje na">N/A <span class="na-badge">sin contexto</span></span>`}
                         </div>
                         <div class="just">${ind.justificacion}</div>
                         ${esValido ? `<div class="conf">Confianza ${'●'.repeat(Math.min(ind.confianza||3,5))}${'○'.repeat(5-Math.min(ind.confianza||3,5))}</div>` : ''}
@@ -1714,7 +2411,7 @@
 
             // Recomendaciones
             html += `<div class="recomendaciones-box">
-                <div class="title">Recomendaciones según la evaluación</div>`;
+                <div class="title">💡 Recomendaciones según la evaluación</div>`;
 
             const indicadoresConPuntaje = indicadores.filter(i => i.evaluable);
             const ordenados = [...indicadoresConPuntaje].sort((a, b) => a.puntaje - b.puntaje);
@@ -1731,30 +2428,31 @@
                         <span class="rec-indicador">${ind.nombre}</span>
                         <span class="rec-texto">
                             <span class="${clasePuntaje}">${ind.puntaje}/10</span> · ${rec}
+                            ${esProReal ? '<span class="pro-badge">PRO</span>' : ''}
                         </span>
                     </div>
                 `;
             }
 
             if (topCriticos.length === 0) {
-                html += `<div class="rec-item"><span class="rec-texto">Todos los indicadores evaluables muestran un buen rendimiento.</span></div>`;
+                html += `<div class="rec-item"><span class="rec-texto">✅ Todos los indicadores evaluables muestran un buen rendimiento.</span></div>`;
             }
 
             html += `</div>`;
 
             // Footer
-            const modoText = modo === 'api' ? 'Evaluación con DeepSeek AI' : 'Modo Demo · resultados simulados';
+            const modoText = esProReal ? '🧠 Evaluación PRO con IA' : esStandar ? '📄 Evaluación STANDAR' : '🎯 Evaluación DEMO';
             html += `
                 <div class="footer-note" style="margin-top:25px;">
                     <strong>${modoText}</strong>
-                    ${modo === 'demo' ? ' — Conecta con DeepSeek API para evaluación real' : ''}
+                    ${esDemo ? ' — <a href="#" id="upgradeLink" style="color:#fdcb6e;">Compra créditos</a> para más funcionalidades' : ''}
                     <span style="display:block;margin-top:4px;font-size:0.7rem;color:#4a4a6a;">
                         Instrumento basado en Chaves &amp; Belluccia (2003) · 14 indicadores de calidad gráfica
                     </span>
                 </div>
             `;
 
-            reportContent.innerHTML = html;
+            DOM.reportContent.innerHTML = html;
 
             // Charts
             setTimeout(() => {
@@ -1762,8 +2460,12 @@
             }, 150);
 
             // Event listeners
-            document.querySelector('#imageBtn')?.addEventListener('click', exportarImagen);
+            document.querySelector('#imageBtn')?.addEventListener('click', () => exportarImagen(esStandar || esProReal));
             document.querySelector('#textBtn')?.addEventListener('click', mostrarTexto);
+            document.querySelector('#pdfBtn')?.addEventListener('click', () => exportarPDF(true, false));
+            document.querySelector('#pdfBtnStandar')?.addEventListener('click', () => exportarPDF(false, true));
+            document.querySelector('#upgradeLink')?.addEventListener('click', (e) => { e.preventDefault();
+                togglePlanes(); });
         }
 
         // ============================================================
@@ -1783,39 +2485,16 @@
 
                 chartInstances.barras = new Chart(ctxBarras, {
                     type: 'bar',
-                    data: {
-                        labels,
-                        datasets: [{
-                            data: values,
-                            backgroundColor: colores.map(c => c + '88'),
-                            borderColor: colores,
-                            borderWidth: 2,
-                            borderRadius: 4,
-                            barPercentage: 0.6,
-                        }]
-                    },
+                    data: { labels, datasets: [{ data: values, backgroundColor: colores.map(c => c + '88'),
+                            borderColor: colores, borderWidth: 2, borderRadius: 4, barPercentage: 0.6 }] },
                     options: {
                         responsive: true,
                         maintainAspectRatio: true,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: (ctx) => `${ctx.parsed.y.toFixed(1)} / 10`
-                                }
-                            }
-                        },
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) =>
+                                    `${ctx.parsed.y.toFixed(1)} / 10` } } },
                         scales: {
-                            y: {
-                                min: 0,
-                                max: 10,
-                                ticks: { color: '#6a6a8a', stepSize: 2 },
-                                grid: { color: '#1a1a28' }
-                            },
-                            x: {
-                                ticks: { color: '#6a6a8a', font: { size: 9 } },
-                                grid: { display: false }
-                            }
+                            y: { min: 0, max: 10, ticks: { color: '#6a6a8a', stepSize: 2 }, grid: { color: '#1a1a28' } },
+                            x: { ticks: { color: '#6a6a8a', font: { size: 9 } }, grid: { display: false } }
                         }
                     }
                 });
@@ -1830,26 +2509,15 @@
                     type: 'radar',
                     data: {
                         labels: radarLabels,
-                        datasets: [{
-                            data: radarData,
-                            backgroundColor: 'rgba(108,92,231,0.12)',
-                            borderColor: '#6c5ce7',
-                            borderWidth: 2,
-                            pointBackgroundColor: '#6c5ce7',
-                            pointRadius: 3,
-                        }]
+                        datasets: [{ data: radarData, backgroundColor: 'rgba(108,92,231,0.12)',
+                            borderColor: '#6c5ce7', borderWidth: 2, pointBackgroundColor: '#6c5ce7',
+                            pointRadius: 3 }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: true,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: (ctx) => `${ctx.parsed.r.toFixed(1)} / 10`
-                                }
-                            }
-                        },
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) =>
+                                    `${ctx.parsed.r.toFixed(1)} / 10` } } },
                         scales: {
                             r: {
                                 min: 0,
@@ -1868,16 +2536,15 @@
         // ============================================================
         //  EXPORTAR IMAGEN
         // ============================================================
-        function exportarImagen() {
+        function exportarImagen(conDescarga) {
             const btn = document.querySelector('#imageBtn');
             if (btn) { btn.textContent = 'Generando...';
                 btn.disabled = true; }
 
-            const nombreMarca = document.getElementById('nombreMarca').value.trim() || 'Marca';
-            const modo = CONFIG.USE_REAL_API && CONFIG.DEEPSEEK_API_KEY ? 'PRO' : 'DEMO';
-            const nombreArchivo = `${nombreMarca.replace(/\s+/g, '_')}_Indicadores_Calidad_${modo}.png`;
-
             const element = document.getElementById('report');
+            const nombreMarca = DOM.nombreMarca.value.trim() || 'Marca';
+            const modo = conDescarga ? 'PRO' : 'DEMO';
+            const nombreArchivo = `${nombreMarca.replace(/\s+/g, '_')}_Indicadores_Calidad_${modo}.png`;
 
             html2canvas(element, {
                 backgroundColor: '#0f0f18',
@@ -1890,39 +2557,178 @@
                 windowWidth: element.scrollWidth,
                 windowHeight: element.scrollHeight,
             }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = nombreArchivo;
-                link.href = canvas.toDataURL('image/png', 1.0);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-                mostrarToast(`Imagen guardada: ${nombreArchivo}`, '🖼️');
-                if (btn) { btn.textContent = 'Guardar como imagen';
+                if (conDescarga) {
+                    const link = document.createElement('a');
+                    link.download = nombreArchivo;
+                    link.href = canvas.toDataURL('image/png', 1.0);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    mostrarToast(`Imagen guardada: ${nombreArchivo}`, '🖼️');
+                } else {
+                    const ventana = window.open('', '_blank');
+                    ventana.document.write(`<img src="${canvas.toDataURL('image/png', 1.0)}" style="max-width:100%;">`);
+                    ventana.document.close();
+                    mostrarToast('Imagen abierta en nueva ventana (DEMO)', '🖼️');
+                }
+                if (btn) { btn.textContent = '🖼️ Guardar como imagen';
                     btn.disabled = false; }
             }).catch(err => {
                 console.error('Error:', err);
-                alert('No se pudo generar la imagen. Usa "Ver informe textual" para copiar los resultados.');
-                if (btn) { btn.textContent = 'Guardar como imagen';
+                alert('No se pudo generar la imagen.');
+                if (btn) { btn.textContent = '🖼️ Guardar como imagen';
                     btn.disabled = false; }
             });
+        }
+
+        // ============================================================
+        //  EXPORTAR PDF
+        // ============================================================
+        function exportarPDF(esPro, esStandar) {
+            const btn = document.querySelector(esPro ? '#pdfBtn' : '#pdfBtnStandar');
+            if (btn) { btn.textContent = 'Generando PDF...';
+                btn.disabled = true; }
+
+            const element = document.getElementById('report');
+            const nombreMarca = DOM.nombreMarca.value.trim() || 'Marca';
+            const nombreArchivo = `${nombreMarca.replace(/\s+/g, '_')}_Indicadores_Calidad_${esPro ? 'PRO' : 'STANDAR'}.pdf`;
+
+            html2canvas(element, {
+                backgroundColor: '#0f0f18',
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                allowTaint: true,
+                width: element.scrollWidth,
+                height: element.scrollHeight,
+                windowWidth: element.scrollWidth,
+                windowHeight: element.scrollHeight,
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png', 1.0);
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+
+                // Portada
+                pdf.setFillColor(10, 10, 15);
+                pdf.rect(0, 0, 210, 297, 'F');
+
+                pdf.setFontSize(32);
+                pdf.setTextColor(162, 155, 254);
+                pdf.text('IC', 20, 45);
+
+                pdf.setFontSize(24);
+                pdf.setTextColor(232, 232, 240);
+                pdf.text('Indicadores de Calidad', 105, 70, { align: 'center' });
+
+                pdf.setFontSize(16);
+                pdf.setTextColor(232, 232, 240);
+                pdf.text(`Informe de Evaluación ${esPro ? 'PROFESIONAL' : 'STANDAR'}`, 105, 90, { align: 'center' });
+
+                pdf.setFontSize(14);
+                pdf.setTextColor(162, 155, 254);
+                pdf.text('Chaves & Belluccia (2003)', 105, 110, { align: 'center' });
+
+                pdf.setDrawColor(108, 92, 231);
+                pdf.setLineWidth(1);
+                pdf.line(50, 125, 160, 125);
+
+                const contexto = contextoActual || {};
+                const general = datosActuales?.promedio_general || 0;
+
+                pdf.setFontSize(12);
+                pdf.setTextColor(200, 200, 210);
+                const yStart = 150;
+                pdf.text(`Marca: ${contexto.nombre_marca || 'No especificada'}`, 105, yStart, { align: 'center' });
+                pdf.text(`Sector: ${contexto.sector || 'No especificado'}`, 105, yStart + 10, { align: 'center' });
+                pdf.text(`Fecha: ${new Date().toLocaleDateString()}`, 105, yStart + 20, { align: 'center' });
+
+                pdf.setFontSize(28);
+                pdf.setTextColor(162, 155, 254);
+                pdf.text(`${general.toFixed(1)} / 10`, 105, yStart + 50, { align: 'center' });
+                pdf.setFontSize(10);
+                pdf.setTextColor(106, 106, 138);
+                pdf.text('Puntuación general', 105, yStart + 60, { align: 'center' });
+
+                // Imagen en portada (solo PRO)
+                if (esPro && croppedImageData) {
+                    try {
+                        const img = new Image();
+                        img.crossOrigin = 'Anonymous';
+                        img.src = croppedImageData;
+                        img.onload = function() {
+                            const imgWidth = 60;
+                            const imgHeight = (this.height / this.width) * imgWidth;
+                            pdf.addImage(this, 'PNG', 75, yStart + 75, imgWidth, Math.min(imgHeight, 60));
+                            continuarPDF();
+                        };
+                        img.onerror = function() { continuarPDF(); };
+                    } catch (e) { continuarPDF(); }
+                } else {
+                    continuarPDF();
+                }
+
+                function continuarPDF() {
+                    pdf.setFontSize(8);
+                    pdf.setTextColor(80, 80, 100);
+                    pdf.text(`Generado con Indicadores de Calidad ${esPro ? 'PRO' : 'STANDAR'}`, 105, 285, { align: 'center' });
+
+                    pdf.addPage();
+                    pdf.setFontSize(18);
+                    pdf.setTextColor(162, 155, 254);
+                    pdf.text('Informe detallado', 20, 30);
+                    pdf.setFontSize(10);
+                    pdf.setTextColor(106, 106, 138);
+                    pdf.text(`Marca: ${contexto.nombre_marca || 'No especificada'}`, 20, 45);
+                    pdf.text(`Fecha: ${new Date().toLocaleDateString()}`, 20, 52);
+                    pdf.setDrawColor(30, 30, 50);
+                    pdf.setLineWidth(0.5);
+                    pdf.line(20, 60, 190, 60);
+                    pdf.addImage(imgData, 'PNG', 0, 65, 210, (canvas.height / canvas.width) * 210);
+
+                    pdf.save(nombreArchivo);
+                    mostrarToast(`PDF guardado: ${nombreArchivo}`, '📄');
+                    if (btn) { btn.textContent = esPro ? '📄 Exportar PDF' : '📄 Exportar PDF';
+                        btn.disabled = false; }
+                }
+
+                if (!esPro || !croppedImageData) continuarPDF();
+
+            }).catch(err => {
+                console.error('Error PDF:', err);
+                alert('Error al generar el PDF. Intenta de nuevo.');
+                if (btn) { btn.textContent = esPro ? '📄 Exportar PDF' : '📄 Exportar PDF';
+                    btn.disabled = false; }
+            });
+        }
+
+        // ============================================================
+        //  RECOMENDACIONES
+        // ============================================================
+        function obtenerRecomendacion(indicador, puntaje) {
+            if (puntaje <= 3) return 'Requiere mejora significativa. Considerar rediseño de este aspecto.';
+            if (puntaje <= 6) return 'Aceptable pero mejorable. Revisar detalles específicos.';
+            return 'Excelente rendimiento. Mantener el estándar actual.';
         }
 
         // ============================================================
         //  TEXTO
         // ============================================================
         function generarTextoPlano() {
-            if (!datosActuales || !contextoActual) {
-                return 'No hay datos para mostrar. Realiza una evaluación primero.';
-            }
+            if (!datosActuales || !contextoActual) return 'No hay datos para mostrar.';
 
             const { indicadores, promedios_categoria, promedio_general } = datosActuales;
             const contexto = contextoActual;
             const general = promedio_general || 0;
 
+            const diagnostico = generarDiagnostico(general);
+            const esPro = nivelSeleccionado === 'pro' && CONFIG.USE_REAL_API && CONFIG.DEEPSEEK_API_KEY;
+            const esStandar = nivelSeleccionado === 'standar';
+            const esDemo = nivelSeleccionado === 'demo';
+
             let texto = [];
             texto.push('================================================');
             texto.push('  INFORME DE EVALUACION - 14 INDICADORES');
+            texto.push(`  ${esPro ? 'MODO PRO - IA' : esStandar ? 'MODO STANDAR' : 'MODO DEMO'}`);
             texto.push('  Chaves & Belluccia (2003)');
             texto.push('================================================');
             texto.push('');
@@ -1932,6 +2738,11 @@
             texto.push('ATRIBUTOS: ' + (contexto.atributos_identidad || 'No especificados'));
             texto.push('');
             texto.push('PUNTUACION GENERAL: ' + general.toFixed(1) + ' / 10');
+            texto.push('');
+            texto.push('DIAGNOSTICO: ' + diagnostico.icono + ' ' + diagnostico.titulo);
+            texto.push('  ' + diagnostico.descripcion);
+            texto.push('  💡 ' + diagnostico.recomendacion);
+            texto.push('');
             texto.push('------------------------------------------------');
             texto.push('');
             texto.push('CATEGORIAS');
@@ -1980,23 +2791,38 @@
 
             texto.push('');
             texto.push('------------------------------------------------');
+            texto.push(`Modo: ${esPro ? 'PRO (Evaluación con IA)' : esStandar ? 'STANDAR (Sin IA)' : 'DEMO (Simulación)'}`);
             texto.push('Instrumento basado en Chaves & Belluccia (2003)');
             texto.push('14 indicadores de calidad grafica');
             texto.push('Fecha: ' + new Date().toLocaleDateString());
+
+            if (esPro) {
+                texto.push('');
+                texto.push('--- INFORME GENERADO CON IA ---');
+                texto.push('Este informe ha sido generado con análisis visual');
+                texto.push('por inteligencia artificial (DeepSeek).');
+            }
 
             return texto.join('\n');
         }
 
         function mostrarTexto() {
-            const overlay = document.getElementById('textReportOverlay');
-            const content = document.getElementById('textReportContent');
+            const overlay = DOM.modalOverlay;
+            const content = DOM.modalContent;
 
             const texto = generarTextoPlano();
             content.textContent = texto;
             overlay.classList.add('active');
 
-            // Copiar
-            document.getElementById('copyTextBtn').onclick = function() {
+            const esPro = nivelSeleccionado === 'pro' && CONFIG.USE_REAL_API && CONFIG.DEEPSEEK_API_KEY;
+
+            if (esPro) {
+                DOM.downloadDocxBtn.style.display = 'inline-flex';
+            } else {
+                DOM.downloadDocxBtn.style.display = 'none';
+            }
+
+            DOM.copyBtn.onclick = function() {
                 navigator.clipboard.writeText(texto).then(() => {
                     this.textContent = 'Copiado';
                     this.classList.add('copied');
@@ -2008,12 +2834,11 @@
                 });
             };
 
-            // Descargar .txt
-            document.getElementById('downloadTxtBtn').onclick = function() {
+            DOM.downloadBtn.onclick = function() {
                 const blob = new Blob([texto], { type: 'text/plain;charset=utf-8' });
                 const link = document.createElement('a');
-                const nombreMarca = document.getElementById('nombreMarca').value.trim() || 'Marca';
-                const modo = CONFIG.USE_REAL_API && CONFIG.DEEPSEEK_API_KEY ? 'PRO' : 'DEMO';
+                const nombreMarca = DOM.nombreMarca.value.trim() || 'Marca';
+                const modo = esPro ? 'PRO' : 'STANDAR';
                 link.download = `${nombreMarca.replace(/\s+/g, '_')}_Indicadores_Calidad_${modo}.txt`;
                 link.href = URL.createObjectURL(blob);
                 document.body.appendChild(link);
@@ -2021,46 +2846,143 @@
                 document.body.removeChild(link);
                 mostrarToast('Informe descargado como .txt', '📄');
             };
+
+            DOM.downloadDocxBtn.onclick = function() {
+                if (!esPro) {
+                    mostrarToast('DOCX solo disponible en PRO', '⚠️');
+                    return;
+                }
+                exportarDOCX();
+            };
         }
 
-        document.getElementById('closeTextReport').addEventListener('click', function() {
-            document.getElementById('textReportOverlay').classList.remove('active');
-        });
+        // ============================================================
+        //  EXPORTAR DOCX (SOLO PRO)
+        // ============================================================
+        function exportarDOCX() {
+            const btn = DOM.downloadDocxBtn;
+            if (btn) { btn.textContent = 'Generando DOCX...';
+                btn.disabled = true; }
 
-        document.getElementById('textReportOverlay').addEventListener('click', function(e) {
-            if (e.target === this) this.classList.remove('active');
-        });
+            const nombreMarca = DOM.nombreMarca.value.trim() || 'Marca';
+            const nombreArchivo = `${nombreMarca.replace(/\s+/g, '_')}_Indicadores_Calidad_PRO.docx`;
+
+            try {
+                const { Document, Packer, Paragraph, TextRun, AlignmentType } = window.docx;
+
+                const { indicadores, promedios_categoria, promedio_general } = datosActuales;
+                const contexto = contextoActual;
+                const general = promedio_general || 0;
+
+                const diagnostico = generarDiagnostico(general);
+
+                const doc = new Document({
+                    sections: [{
+                        properties: { page: { margin: { top: 720, bottom: 720, left: 720, right: 720 } } },
+                        children: [
+                            new Paragraph({ children: [new TextRun({ text: 'INFORME DE EVALUACION - 14 INDICADORES',
+                                    size: 28, bold: true, color: '6C5CE7' })],
+                                alignment: AlignmentType.CENTER, spacing: { after: 200 } }),
+                            new Paragraph({ children: [new TextRun({ text: 'Chaves & Belluccia (2003) · MODO PRO',
+                                    size: 20, color: '6A6A8A' })], alignment: AlignmentType.CENTER,
+                                spacing: { after: 400 } }),
+                            new Paragraph({ children: [new TextRun({ text: 'MARCA: ', bold: true,
+                                    size: 20 }), new TextRun({ text: contexto.nombre_marca ||
+                                        'No especificada', size: 20 })], spacing: { after: 100 } }),
+                            new Paragraph({ children: [new TextRun({ text: 'SECTOR: ', bold: true,
+                                    size: 20 }), new TextRun({ text: contexto.sector || 'No especificado',
+                                        size: 20 })], spacing: { after: 100 } }),
+                            new Paragraph({ children: [new TextRun({ text: 'PUNTUACION GENERAL: ' + general
+                                        .toFixed(1) + ' / 10', size: 24, bold: true, color: '6C5CE7' })],
+                                alignment: AlignmentType.CENTER, spacing: { after: 300 } }),
+                            new Paragraph({ children: [new TextRun({ text: 'DIAGNOSTICO: ' + diagnostico
+                                        .icono + ' ' + diagnostico.titulo, size: 20, bold: true,
+                                        color: diagnostico.color.replace('#', '') })],
+                            spacing: { after: 100 } }),
+                            new Paragraph({ children: [new TextRun({ text: diagnostico.descripcion, size: 16,
+                                        color: 'C8C8E0' })], spacing: { after: 100 } }),
+                            new Paragraph({ children: [new TextRun({ text: '💡 ' + diagnostico
+                                        .recomendacion, size: 16, color: 'FDCB6E' })],
+                                spacing: { after: 200 } }),
+                            new Paragraph({ children: [new TextRun({ text: 'CATEGORIAS', size: 22,
+                                    bold: true })], spacing: { after: 200 } }),
+                            ...Object.entries(promedios_categoria).map(([cat, score]) =>
+                                new Paragraph({ children: [new TextRun({ text: '  ' + cat + ': ',
+                                            bold: true, size: 18 }), new TextRun({ text: score !==
+                                            null ? score.toFixed(1) + ' / 10' : 'N/A', size: 18 })],
+                                    spacing: { after: 80 } })),
+                            new Paragraph({ children: [new TextRun({ text: 'INDICADORES DETALLADOS',
+                                    size: 22, bold: true })], spacing: { after: 200 } }),
+                            ...indicadores.map(ind => {
+                                const esValido = ind.evaluable !== false;
+                                const children = [new TextRun({ text: ind.nombre, bold: true,
+                                    size: 18 })];
+                                if (esValido) {
+                                    children.push(new TextRun({ text: `\n    Puntaje: ${ind.puntaje} / 10`,
+                                        size: 16, color: 'A29BFE' }));
+                                    children.push(new TextRun({ text: `\n    Confianza: ${'●'.repeat(Math.min(ind.confianza||3,5))}${'○'.repeat(5-Math.min(ind.confianza||3,5))}`,
+                                        size: 14, color: '6A6A8A' }));
+                                } else {
+                                    children.push(new TextRun({ text: '\n    Puntaje: N/A (sin contexto)',
+                                        size: 16, color: 'FF6B6B' }));
+                                }
+                                children.push(new TextRun({ text: `\n    ${ind.justificacion}`,
+                                    size: 15, color: 'C8C8E0' }));
+                                return new Paragraph({ children: children, spacing: { after: 150 } });
+                            })
+                        ]
+                    }]
+                });
+
+                Packer.toBlob(doc).then(blob => {
+                    const link = document.createElement('a');
+                    link.download = nombreArchivo;
+                    link.href = URL.createObjectURL(blob);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    mostrarToast(`DOCX guardado: ${nombreArchivo}`, '📄');
+                    if (btn) { btn.textContent = '📄 Descargar DOCX';
+                        btn.disabled = false; }
+                });
+
+            } catch (e) {
+                console.error('Error DOCX:', e);
+                alert('Error al generar el DOCX.');
+                if (btn) { btn.textContent = '📄 Descargar DOCX';
+                    btn.disabled = false; }
+            }
+        }
+
+        // ============================================================
+        //  MODAL
+        // ============================================================
+        DOM.closeModal.addEventListener('click', function() { DOM.modalOverlay.classList.remove('active'); });
+        DOM.modalOverlay.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); });
 
         // ============================================================
         //  INIT
         // ============================================================
         function init() {
-            if (CONFIG.USE_REAL_API && CONFIG.DEEPSEEK_API_KEY) {
-                statusBadge.textContent = '● PRO';
-                statusBadge.classList.add('active');
-                footerNote.innerHTML = `
-                    <strong>Modo PRO</strong> — Evaluaciones con DeepSeek AI
-                    <span style="display:block;margin-top:4px;font-size:0.7rem;color:#4a4a6a;">
-                        Instrumento basado en Chaves &amp; Belluccia (2003) · 14 indicadores de calidad gráfica
-                    </span>
-                `;
-            } else {
-                statusBadge.textContent = '● DEMO';
-                statusBadge.classList.remove('active');
-                footerNote.innerHTML = `
-                    <strong>Modo Demo</strong> — Resultados simulados
-                    <span style="display:block;margin-top:4px;font-size:0.7rem;color:#4a4a6a;">
-                        Instrumento basado en Chaves &amp; Belluccia (2003) · 14 indicadores de calidad gráfica
-                    </span>
-                `;
-            }
+            CreditSystem.actualizarUI();
+            DemoLimit.actualizarUI();
+            actualizarBotonEvaluar();
 
             console.log('📋 Indicadores de Calidad · Chaves & Belluccia (2003)');
-            console.log(`📌 Modo: ${CONFIG.USE_REAL_API && CONFIG.DEEPSEEK_API_KEY ? 'PRO' : 'DEMO'}`);
+            console.log(`💰 Créditos: ${CreditSystem.get()}`);
             console.log(`📊 ${INDICADORES.length} indicadores · ${Object.keys(CATEGORIAS).length} categorías`);
+            console.log('📄 STANDAR: 2.5 créditos · PNG + TXT + PDF');
+            console.log('🧠 PRO: 5 créditos · IA · PDF + DOCX');
+            console.log('🎯 DEMO: 1 cada 12h · Solo visualización');
+            console.log('💳 Pago: QR Banco Ganadero + WhatsApp');
+            console.log('📈 Diagnóstico simplificado (solo promedio general)');
         }
 
-        init();
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
     </script>
 
 </body>

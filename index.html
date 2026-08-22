@@ -14,6 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/docx@8.2.2/build/index.min.js"></script>
 
     <style>
+        /* ===== TODOS LOS ESTILOS ===== */
         * {
             margin: 0;
             padding: 0;
@@ -109,6 +110,10 @@
             color: #ff6b6b;
             border-color: #ff6b6b;
         }
+        .badge-status.testing {
+            color: #fdcb6e;
+            border-color: #fdcb6e;
+        }
         .header-actions {
             display: flex;
             align-items: center;
@@ -145,6 +150,19 @@
             color: #55efc4;
             font-weight: 700;
             font-size: 0.9rem;
+        }
+
+        /* BADGE DE PRUEBAS */
+        .test-badge {
+            background: #fdcb6e;
+            color: #0a0a0f;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 6px;
         }
 
         /* PLANES */
@@ -607,6 +625,15 @@
         }
         .nivel-selector .nivel-btn.active .nivel-costo {
             color: #a8a8c0;
+        }
+        .nivel-selector .nivel-btn .gratis-badge {
+            background: #55efc4;
+            color: #0a0a0f;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 1px 8px;
+            border-radius: 8px;
+            margin-left: 4px;
         }
 
         .btn-evaluate {
@@ -1279,7 +1306,7 @@
             <div class="header-left">
                 <div class="logo-icon">IC</div>
                 <div>
-                    <h1>Indicadores de Calidad</h1>
+                    <h1>Indicadores de Calidad <span class="test-badge">🔬 PRUEBAS</span></h1>
                     <span class="header-sub"><strong>14 indicadores</strong> · Chaves &amp; Belluccia (2003)</span>
                 </div>
             </div>
@@ -1287,10 +1314,18 @@
                 <span class="credit-display">
                     💰 Créditos: <span class="num" id="creditCount">0</span>
                 </span>
-                <span class="badge-status" id="statusBadge">● DEMO</span>
+                <span class="badge-status testing" id="statusBadge">● PRUEBAS</span>
                 <button class="btn-upgrade" id="btnUpgrade">⬆️ Comprar créditos</button>
             </div>
         </header>
+
+        <!-- ===== BANNER DE PRUEBAS ===== -->
+        <div style="background: #1a1a28; border: 1px solid #fdcb6e; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px;">
+            <p style="color: #fdcb6e; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 1.5rem;">🧪</span>
+                <span><strong>Modo de pruebas:</strong> STANDAR es <strong style="color: #55efc4;">GRATUITO</strong> y genera PDF. PRO sigue siendo pago (5 créditos) con IA.</span>
+            </p>
+        </div>
 
         <!-- ===== PLANES ===== -->
         <div class="planes-section" id="planesSection">
@@ -1424,8 +1459,8 @@
                 <div class="nivel-costo">Gratis · 1 cada 12h</div>
             </button>
             <button class="nivel-btn" data-nivel="standar">
-                <div class="nivel-nombre">📄 STANDAR</div>
-                <div class="nivel-costo">2.5 créditos · PNG + TXT + PDF</div>
+                <div class="nivel-nombre">📄 STANDAR <span class="gratis-badge">GRATIS</span></div>
+                <div class="nivel-costo">0 créditos · PNG + TXT + PDF</div>
             </button>
             <button class="nivel-btn" data-nivel="pro">
                 <div class="nivel-nombre">🧠 PRO</div>
@@ -1454,7 +1489,7 @@
 
         <!-- ===== FOOTER ===== -->
         <div class="footer-note" id="footerNote">
-            <strong>Modo Demo</strong> — <span id="demoStatus">✅ 1 evaluación disponible</span>
+            <strong>Modo Pruebas</strong> — <span id="demoStatus">✅ STANDAR gratuito</span>
             <span style="display:block;margin-top:4px;font-size:0.7rem;color:#4a4a6a;">
                 Instrumento basado en Chaves &amp; Belluccia (2003) · 14 indicadores de calidad gráfica
             </span>
@@ -1509,9 +1544,13 @@
 
     <script>
         // ============================================================
-        //  CONFIGURACIÓN
+        //  CONFIGURACIÓN - VERSIÓN DE PRUEBAS
+        //  STANDAR es GRATUITO (no consume créditos)
         // ============================================================
         const CONFIG = {
+            // STANDAR es gratuito en modo pruebas
+            STANDAR_GRATIS: true, // ← Cambiar a false para modo producción
+
             // Costo de cada nivel en créditos
             COST_STANDAR: 2.5,
             COST_PRO: 5,
@@ -1526,16 +1565,11 @@
             DEEPSEEK_API_KEY: '',
             USE_REAL_API: false,
 
-            // ============================================================
-            //  ⚠️ INSTRUCCIONES PARA LOS QRs:
-            //  1. Convierte tus imágenes QR a Base64
-            //  2. Pega el código Base64 en la variable correspondiente
-            //  3. Guarda el archivo
-            // ============================================================
+            // QRs (pendientes)
             QRS: {
-                basic: '', // QR para $10 USD
-                standard: '', // QR para $25 USD
-                premium: '' // QR para $65 USD
+                basic: '',
+                standard: '',
+                premium: ''
             },
 
             // Planes de créditos
@@ -1752,8 +1786,8 @@
                 if (this.canUse()) {
                     statusEl.textContent = '✅ 1 evaluación DEMO disponible';
                     statusEl.style.color = '#55efc4';
-                    if (badgeEl) { badgeEl.textContent = '● DEMO';
-                        badgeEl.className = 'badge-status'; }
+                    if (badgeEl) { badgeEl.textContent = '● PRUEBAS';
+                        badgeEl.className = 'badge-status testing'; }
                 } else {
                     const hours = Math.ceil(this.getRemainingTime());
                     statusEl.textContent = `⏳ Próxima evaluación en ${hours}h`;
@@ -1965,13 +1999,20 @@
                 return;
             }
 
+            if (nivel === 'standar') {
+                // STANDAR es GRATUITO en modo pruebas
+                btn.disabled = false;
+                btn.textContent = '📄 Evaluar STANDAR (GRATIS)';
+                return;
+            }
+
+            // PRO
             const creditos = CreditSystem.get();
-            const costo = nivel === 'standar' ? CONFIG.COST_STANDAR : CONFIG.COST_PRO;
+            const costo = CONFIG.COST_PRO;
 
             if (creditos >= costo) {
                 btn.disabled = false;
-                btn.textContent = nivel === 'standar' ? `📄 Evaluar STANDAR (${costo} créditos)` :
-                    `🧠 Evaluar PRO (${costo} créditos)`;
+                btn.textContent = `🧠 Evaluar PRO (${costo} créditos)`;
             } else {
                 btn.disabled = true;
                 btn.textContent = `⚠️ Créditos insuficientes (${costo} necesarios)`;
@@ -1995,7 +2036,6 @@
             const qrBase64 = CONFIG.QRS[planId];
             if (!qrBase64) {
                 mostrarToast('⚠️ QR no disponible. Contacta por WhatsApp.', '⚠️');
-                // Mostrar datos de cuenta igualmente
                 DOM.qrImagen.innerHTML =
                     `<div style="padding:40px;background:#1a1a28;border-radius:12px;color:#6a6a8a;">📱 QR no cargado<br><span style="font-size:0.8rem;">Contacta por WhatsApp para el pago</span></div>`;
             } else {
@@ -2220,10 +2260,8 @@
 
             // Verificar créditos o demo
             if (esStandar) {
-                if (!CreditSystem.use(CONFIG.COST_STANDAR)) {
-                    mostrarToast('⚠️ Créditos insuficientes para STANDAR', '⚠️');
-                    return;
-                }
+                // STANDAR es GRATUITO en modo pruebas
+                // No consume créditos
             } else if (esPro) {
                 if (!CreditSystem.use(CONFIG.COST_PRO)) {
                     mostrarToast('⚠️ Créditos insuficientes para PRO', '⚠️');
@@ -2254,7 +2292,7 @@
             if (esPro) {
                 DOM.loadingSub.textContent = '🧠 Evaluando con IA (PRO)...';
             } else if (esStandar) {
-                DOM.loadingSub.textContent = '📄 Evaluando STANDAR...';
+                DOM.loadingSub.textContent = '📄 Evaluando STANDAR (GRATIS)...';
             } else {
                 DOM.loadingSub.textContent = '🎯 Evaluando DEMO...';
             }
@@ -2275,7 +2313,7 @@
                 if (esPro) {
                     mostrarToast('🧠 Evaluación PRO completada', '🧠');
                 } else if (esStandar) {
-                    mostrarToast('📄 Evaluación STANDAR completada', '📄');
+                    mostrarToast('📄 Evaluación STANDAR completada (GRATIS)', '📄');
                 } else {
                     mostrarToast('🎯 Evaluación DEMO completada', '🎯');
                 }
@@ -2297,7 +2335,6 @@
             const { indicadores, promedios_categoria, promedio_general } = data;
             const general = promedio_general || 0;
 
-            // Diagnóstico simplificado (solo promedio general)
             const diagnostico = generarDiagnostico(general);
             const imagenSrc = croppedImageData || DOM.preview.src || '';
 
@@ -2316,7 +2353,7 @@
                             <br><span style="color:#6a6a8a;font-size:0.75rem;">
                                 Basado en los 14 indicadores de Chaves &amp; Belluccia (2003)
                                 ${esProReal ? '<span class="pro-badge">PRO</span>' : ''}
-                                ${esStandar ? ' · STANDAR' : ''}
+                                ${esStandar ? ' · STANDAR <span class="test-badge" style="font-size:0.5rem;">GRATIS</span>' : ''}
                                 ${esDemo ? ' · DEMO' : ''}
                             </span>
                         </div>
@@ -2337,16 +2374,20 @@
                 </div>
             `;
 
-            // Actions - según nivel
+            // Actions
             let actionsHtml = `<div class="report-actions">`;
             if (!esDemo) {
                 actionsHtml += `<button class="btn btn-ghost" id="imageBtn">🖼️ Guardar como imagen</button>`;
                 actionsHtml += `<button class="btn btn-ghost" id="textBtn">📋 Ver informe textual</button>`;
-                if (esProReal) {
-                    actionsHtml += `<button class="btn btn-pro" id="pdfBtn">📄 Exportar PDF <span class="pro-badge">PRO</span></button>`;
+
+                // STANDAR y PRO generan PDF
+                if (esStandar || esProReal) {
+                    const label = esStandar ? 'STANDAR' : 'PRO';
+                    actionsHtml += `<button class="btn btn-pro" id="pdfBtn">📄 Exportar PDF <span class="pro-badge">${label}</span></button>`;
                 }
-                if (esStandar) {
-                    actionsHtml += `<button class="btn btn-pro" id="pdfBtnStandar">📄 Exportar PDF <span class="pro-badge">STANDAR</span></button>`;
+
+                if (esProReal) {
+                    actionsHtml += `<button class="btn btn-pro" id="docxBtn">📄 Exportar DOCX <span class="pro-badge">PRO</span></button>`;
                 }
             } else {
                 actionsHtml += `<span style="color:#6a6a8a;font-size:0.85rem;">🔒 DEMO: solo visualización en pantalla</span>`;
@@ -2441,7 +2482,8 @@
             html += `</div>`;
 
             // Footer
-            const modoText = esProReal ? '🧠 Evaluación PRO con IA' : esStandar ? '📄 Evaluación STANDAR' : '🎯 Evaluación DEMO';
+            const modoText = esProReal ? '🧠 Evaluación PRO con IA' : esStandar ? '📄 Evaluación STANDAR (GRATIS)' :
+                '🎯 Evaluación DEMO';
             html += `
                 <div class="footer-note" style="margin-top:25px;">
                     <strong>${modoText}</strong>
@@ -2460,10 +2502,10 @@
             }, 150);
 
             // Event listeners
-            document.querySelector('#imageBtn')?.addEventListener('click', () => exportarImagen(esStandar || esProReal));
+            document.querySelector('#imageBtn')?.addEventListener('click', () => exportarImagen(!esDemo));
             document.querySelector('#textBtn')?.addEventListener('click', mostrarTexto);
-            document.querySelector('#pdfBtn')?.addEventListener('click', () => exportarPDF(true, false));
-            document.querySelector('#pdfBtnStandar')?.addEventListener('click', () => exportarPDF(false, true));
+            document.querySelector('#pdfBtn')?.addEventListener('click', () => exportarPDF(esProReal, esStandar));
+            document.querySelector('#docxBtn')?.addEventListener('click', () => exportarDOCX());
             document.querySelector('#upgradeLink')?.addEventListener('click', (e) => { e.preventDefault();
                 togglePlanes(); });
         }
@@ -2582,16 +2624,17 @@
         }
 
         // ============================================================
-        //  EXPORTAR PDF
+        //  EXPORTAR PDF (STANDAR y PRO)
         // ============================================================
         function exportarPDF(esPro, esStandar) {
-            const btn = document.querySelector(esPro ? '#pdfBtn' : '#pdfBtnStandar');
+            const btn = document.querySelector('#pdfBtn');
             if (btn) { btn.textContent = 'Generando PDF...';
                 btn.disabled = true; }
 
             const element = document.getElementById('report');
             const nombreMarca = DOM.nombreMarca.value.trim() || 'Marca';
-            const nombreArchivo = `${nombreMarca.replace(/\s+/g, '_')}_Indicadores_Calidad_${esPro ? 'PRO' : 'STANDAR'}.pdf`;
+            const nombreArchivo =
+                `${nombreMarca.replace(/\s+/g, '_')}_Indicadores_Calidad_${esPro ? 'PRO' : 'STANDAR'}.pdf`;
 
             html2canvas(element, {
                 backgroundColor: '#0f0f18',
@@ -2687,7 +2730,7 @@
 
                     pdf.save(nombreArchivo);
                     mostrarToast(`PDF guardado: ${nombreArchivo}`, '📄');
-                    if (btn) { btn.textContent = esPro ? '📄 Exportar PDF' : '📄 Exportar PDF';
+                    if (btn) { btn.textContent = '📄 Exportar PDF';
                         btn.disabled = false; }
                 }
 
@@ -2696,171 +2739,16 @@
             }).catch(err => {
                 console.error('Error PDF:', err);
                 alert('Error al generar el PDF. Intenta de nuevo.');
-                if (btn) { btn.textContent = esPro ? '📄 Exportar PDF' : '📄 Exportar PDF';
+                if (btn) { btn.textContent = '📄 Exportar PDF';
                     btn.disabled = false; }
             });
-        }
-
-        // ============================================================
-        //  RECOMENDACIONES
-        // ============================================================
-        function obtenerRecomendacion(indicador, puntaje) {
-            if (puntaje <= 3) return 'Requiere mejora significativa. Considerar rediseño de este aspecto.';
-            if (puntaje <= 6) return 'Aceptable pero mejorable. Revisar detalles específicos.';
-            return 'Excelente rendimiento. Mantener el estándar actual.';
-        }
-
-        // ============================================================
-        //  TEXTO
-        // ============================================================
-        function generarTextoPlano() {
-            if (!datosActuales || !contextoActual) return 'No hay datos para mostrar.';
-
-            const { indicadores, promedios_categoria, promedio_general } = datosActuales;
-            const contexto = contextoActual;
-            const general = promedio_general || 0;
-
-            const diagnostico = generarDiagnostico(general);
-            const esPro = nivelSeleccionado === 'pro' && CONFIG.USE_REAL_API && CONFIG.DEEPSEEK_API_KEY;
-            const esStandar = nivelSeleccionado === 'standar';
-            const esDemo = nivelSeleccionado === 'demo';
-
-            let texto = [];
-            texto.push('================================================');
-            texto.push('  INFORME DE EVALUACION - 14 INDICADORES');
-            texto.push(`  ${esPro ? 'MODO PRO - IA' : esStandar ? 'MODO STANDAR' : 'MODO DEMO'}`);
-            texto.push('  Chaves & Belluccia (2003)');
-            texto.push('================================================');
-            texto.push('');
-            texto.push('MARCA: ' + (contexto.nombre_marca || 'No especificada'));
-            texto.push('SECTOR: ' + (contexto.sector || 'No especificado'));
-            texto.push('COMPETIDORES: ' + (contexto.competidores || 'No especificados'));
-            texto.push('ATRIBUTOS: ' + (contexto.atributos_identidad || 'No especificados'));
-            texto.push('');
-            texto.push('PUNTUACION GENERAL: ' + general.toFixed(1) + ' / 10');
-            texto.push('');
-            texto.push('DIAGNOSTICO: ' + diagnostico.icono + ' ' + diagnostico.titulo);
-            texto.push('  ' + diagnostico.descripcion);
-            texto.push('  💡 ' + diagnostico.recomendacion);
-            texto.push('');
-            texto.push('------------------------------------------------');
-            texto.push('');
-            texto.push('CATEGORIAS');
-            for (const [cat, score] of Object.entries(promedios_categoria)) {
-                texto.push('  ' + cat + ': ' + (score !== null ? score.toFixed(1) + ' / 10' : 'N/A'));
-            }
-            texto.push('');
-            texto.push('INDICADORES DETALLADOS');
-            texto.push('------------------------------------------------');
-            texto.push('');
-
-            for (const ind of indicadores) {
-                const esValido = ind.evaluable !== false;
-                texto.push('  ' + ind.nombre);
-                if (esValido) {
-                    texto.push('    Puntaje: ' + ind.puntaje + ' / 10');
-                    texto.push('    Confianza: ' + '●'.repeat(Math.min(ind.confianza || 3, 5)) + '○'.repeat(5 - Math
-                        .min(ind.confianza || 3, 5)));
-                } else {
-                    texto.push('    Puntaje: N/A (sin contexto)');
-                }
-                texto.push('    ' + ind.justificacion);
-                if (PREGUNTAS_GUIA[ind.nombre]) {
-                    texto.push('    Pregunta guia: ' + PREGUNTAS_GUIA[ind.nombre]);
-                }
-                texto.push('');
-            }
-
-            texto.push('------------------------------------------------');
-            texto.push('RECOMENDACIONES');
-            texto.push('------------------------------------------------');
-            texto.push('');
-
-            const indicadoresConPuntaje = indicadores.filter(i => i.evaluable);
-            const ordenados = [...indicadoresConPuntaje].sort((a, b) => a.puntaje - b.puntaje);
-            const topCriticos = ordenados.slice(0, 5);
-
-            for (const ind of topCriticos) {
-                const rec = obtenerRecomendacion(ind.nombre, ind.puntaje);
-                texto.push('  ' + ind.nombre + ' (' + ind.puntaje + '/10): ' + rec);
-            }
-
-            if (topCriticos.length === 0) {
-                texto.push('  Todos los indicadores evaluables muestran un buen rendimiento.');
-            }
-
-            texto.push('');
-            texto.push('------------------------------------------------');
-            texto.push(`Modo: ${esPro ? 'PRO (Evaluación con IA)' : esStandar ? 'STANDAR (Sin IA)' : 'DEMO (Simulación)'}`);
-            texto.push('Instrumento basado en Chaves & Belluccia (2003)');
-            texto.push('14 indicadores de calidad grafica');
-            texto.push('Fecha: ' + new Date().toLocaleDateString());
-
-            if (esPro) {
-                texto.push('');
-                texto.push('--- INFORME GENERADO CON IA ---');
-                texto.push('Este informe ha sido generado con análisis visual');
-                texto.push('por inteligencia artificial (DeepSeek).');
-            }
-
-            return texto.join('\n');
-        }
-
-        function mostrarTexto() {
-            const overlay = DOM.modalOverlay;
-            const content = DOM.modalContent;
-
-            const texto = generarTextoPlano();
-            content.textContent = texto;
-            overlay.classList.add('active');
-
-            const esPro = nivelSeleccionado === 'pro' && CONFIG.USE_REAL_API && CONFIG.DEEPSEEK_API_KEY;
-
-            if (esPro) {
-                DOM.downloadDocxBtn.style.display = 'inline-flex';
-            } else {
-                DOM.downloadDocxBtn.style.display = 'none';
-            }
-
-            DOM.copyBtn.onclick = function() {
-                navigator.clipboard.writeText(texto).then(() => {
-                    this.textContent = 'Copiado';
-                    this.classList.add('copied');
-                    setTimeout(() => {
-                        this.textContent = 'Copiar';
-                        this.classList.remove('copied');
-                    }, 2000);
-                    mostrarToast('Texto copiado al portapapeles', '📋');
-                });
-            };
-
-            DOM.downloadBtn.onclick = function() {
-                const blob = new Blob([texto], { type: 'text/plain;charset=utf-8' });
-                const link = document.createElement('a');
-                const nombreMarca = DOM.nombreMarca.value.trim() || 'Marca';
-                const modo = esPro ? 'PRO' : 'STANDAR';
-                link.download = `${nombreMarca.replace(/\s+/g, '_')}_Indicadores_Calidad_${modo}.txt`;
-                link.href = URL.createObjectURL(blob);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                mostrarToast('Informe descargado como .txt', '📄');
-            };
-
-            DOM.downloadDocxBtn.onclick = function() {
-                if (!esPro) {
-                    mostrarToast('DOCX solo disponible en PRO', '⚠️');
-                    return;
-                }
-                exportarDOCX();
-            };
         }
 
         // ============================================================
         //  EXPORTAR DOCX (SOLO PRO)
         // ============================================================
         function exportarDOCX() {
-            const btn = DOM.downloadDocxBtn;
+            const btn = document.querySelector('#docxBtn') || DOM.downloadDocxBtn;
             if (btn) { btn.textContent = 'Generando DOCX...';
                 btn.disabled = true; }
 
@@ -2942,16 +2830,171 @@
                     link.click();
                     document.body.removeChild(link);
                     mostrarToast(`DOCX guardado: ${nombreArchivo}`, '📄');
-                    if (btn) { btn.textContent = '📄 Descargar DOCX';
+                    if (btn) { btn.textContent = '📄 Exportar DOCX';
                         btn.disabled = false; }
                 });
 
             } catch (e) {
                 console.error('Error DOCX:', e);
                 alert('Error al generar el DOCX.');
-                if (btn) { btn.textContent = '📄 Descargar DOCX';
+                if (btn) { btn.textContent = '📄 Exportar DOCX';
                     btn.disabled = false; }
             }
+        }
+
+        // ============================================================
+        //  RECOMENDACIONES
+        // ============================================================
+        function obtenerRecomendacion(indicador, puntaje) {
+            if (puntaje <= 3) return 'Requiere mejora significativa. Considerar rediseño de este aspecto.';
+            if (puntaje <= 6) return 'Aceptable pero mejorable. Revisar detalles específicos.';
+            return 'Excelente rendimiento. Mantener el estándar actual.';
+        }
+
+        // ============================================================
+        //  TEXTO
+        // ============================================================
+        function generarTextoPlano() {
+            if (!datosActuales || !contextoActual) return 'No hay datos para mostrar.';
+
+            const { indicadores, promedios_categoria, promedio_general } = datosActuales;
+            const contexto = contextoActual;
+            const general = promedio_general || 0;
+
+            const diagnostico = generarDiagnostico(general);
+            const esPro = nivelSeleccionado === 'pro' && CONFIG.USE_REAL_API && CONFIG.DEEPSEEK_API_KEY;
+            const esStandar = nivelSeleccionado === 'standar';
+            const esDemo = nivelSeleccionado === 'demo';
+
+            let texto = [];
+            texto.push('================================================');
+            texto.push('  INFORME DE EVALUACION - 14 INDICADORES');
+            texto.push(`  ${esPro ? 'MODO PRO - IA' : esStandar ? 'MODO STANDAR (GRATIS)' : 'MODO DEMO'}`);
+            texto.push('  Chaves & Belluccia (2003)');
+            texto.push('================================================');
+            texto.push('');
+            texto.push('MARCA: ' + (contexto.nombre_marca || 'No especificada'));
+            texto.push('SECTOR: ' + (contexto.sector || 'No especificado'));
+            texto.push('COMPETIDORES: ' + (contexto.competidores || 'No especificados'));
+            texto.push('ATRIBUTOS: ' + (contexto.atributos_identidad || 'No especificados'));
+            texto.push('');
+            texto.push('PUNTUACION GENERAL: ' + general.toFixed(1) + ' / 10');
+            texto.push('');
+            texto.push('DIAGNOSTICO: ' + diagnostico.icono + ' ' + diagnostico.titulo);
+            texto.push('  ' + diagnostico.descripcion);
+            texto.push('  💡 ' + diagnostico.recomendacion);
+            texto.push('');
+            texto.push('------------------------------------------------');
+            texto.push('');
+            texto.push('CATEGORIAS');
+            for (const [cat, score] of Object.entries(promedios_categoria)) {
+                texto.push('  ' + cat + ': ' + (score !== null ? score.toFixed(1) + ' / 10' : 'N/A'));
+            }
+            texto.push('');
+            texto.push('INDICADORES DETALLADOS');
+            texto.push('------------------------------------------------');
+            texto.push('');
+
+            for (const ind of indicadores) {
+                const esValido = ind.evaluable !== false;
+                texto.push('  ' + ind.nombre);
+                if (esValido) {
+                    texto.push('    Puntaje: ' + ind.puntaje + ' / 10');
+                    texto.push('    Confianza: ' + '●'.repeat(Math.min(ind.confianza || 3, 5)) + '○'.repeat(5 - Math
+                        .min(ind.confianza || 3, 5)));
+                } else {
+                    texto.push('    Puntaje: N/A (sin contexto)');
+                }
+                texto.push('    ' + ind.justificacion);
+                if (PREGUNTAS_GUIA[ind.nombre]) {
+                    texto.push('    Pregunta guia: ' + PREGUNTAS_GUIA[ind.nombre]);
+                }
+                texto.push('');
+            }
+
+            texto.push('------------------------------------------------');
+            texto.push('RECOMENDACIONES');
+            texto.push('------------------------------------------------');
+            texto.push('');
+
+            const indicadoresConPuntaje = indicadores.filter(i => i.evaluable);
+            const ordenados = [...indicadoresConPuntaje].sort((a, b) => a.puntaje - b.puntaje);
+            const topCriticos = ordenados.slice(0, 5);
+
+            for (const ind of topCriticos) {
+                const rec = obtenerRecomendacion(ind.nombre, ind.puntaje);
+                texto.push('  ' + ind.nombre + ' (' + ind.puntaje + '/10): ' + rec);
+            }
+
+            if (topCriticos.length === 0) {
+                texto.push('  Todos los indicadores evaluables muestran un buen rendimiento.');
+            }
+
+            texto.push('');
+            texto.push('------------------------------------------------');
+            texto.push(`Modo: ${esPro ? 'PRO (Evaluación con IA)' : esStandar ? 'STANDAR (Sin IA, GRATIS)' : 'DEMO (Simulación)'}`);
+            texto.push('Instrumento basado en Chaves & Belluccia (2003)');
+            texto.push('14 indicadores de calidad grafica');
+            texto.push('Fecha: ' + new Date().toLocaleDateString());
+
+            if (esPro) {
+                texto.push('');
+                texto.push('--- INFORME GENERADO CON IA ---');
+                texto.push('Este informe ha sido generado con análisis visual');
+                texto.push('por inteligencia artificial (DeepSeek).');
+            }
+
+            return texto.join('\n');
+        }
+
+        function mostrarTexto() {
+            const overlay = DOM.modalOverlay;
+            const content = DOM.modalContent;
+
+            const texto = generarTextoPlano();
+            content.textContent = texto;
+            overlay.classList.add('active');
+
+            const esPro = nivelSeleccionado === 'pro' && CONFIG.USE_REAL_API && CONFIG.DEEPSEEK_API_KEY;
+
+            if (esPro) {
+                DOM.downloadDocxBtn.style.display = 'inline-flex';
+            } else {
+                DOM.downloadDocxBtn.style.display = 'none';
+            }
+
+            DOM.copyBtn.onclick = function() {
+                navigator.clipboard.writeText(texto).then(() => {
+                    this.textContent = 'Copiado';
+                    this.classList.add('copied');
+                    setTimeout(() => {
+                        this.textContent = 'Copiar';
+                        this.classList.remove('copied');
+                    }, 2000);
+                    mostrarToast('Texto copiado al portapapeles', '📋');
+                });
+            };
+
+            DOM.downloadBtn.onclick = function() {
+                const blob = new Blob([texto], { type: 'text/plain;charset=utf-8' });
+                const link = document.createElement('a');
+                const nombreMarca = DOM.nombreMarca.value.trim() || 'Marca';
+                const modo = esPro ? 'PRO' : 'STANDAR';
+                link.download = `${nombreMarca.replace(/\s+/g, '_')}_Indicadores_Calidad_${modo}.txt`;
+                link.href = URL.createObjectURL(blob);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                mostrarToast('Informe descargado como .txt', '📄');
+            };
+
+            DOM.downloadDocxBtn.onclick = function() {
+                if (!esPro) {
+                    mostrarToast('DOCX solo disponible en PRO', '⚠️');
+                    return;
+                }
+                exportarDOCX();
+            };
         }
 
         // ============================================================
@@ -2968,10 +3011,12 @@
             DemoLimit.actualizarUI();
             actualizarBotonEvaluar();
 
-            console.log('📋 Indicadores de Calidad · Chaves & Belluccia (2003)');
+            // Mostrar que STANDAR es gratuito
+            console.log('📋 Indicadores de Calidad · VERSIÓN DE PRUEBAS');
+            console.log('📄 STANDAR es GRATUITO (no consume créditos)');
             console.log(`💰 Créditos: ${CreditSystem.get()}`);
             console.log(`📊 ${INDICADORES.length} indicadores · ${Object.keys(CATEGORIAS).length} categorías`);
-            console.log('📄 STANDAR: 2.5 créditos · PNG + TXT + PDF');
+            console.log('📄 STANDAR: GRATIS · PNG + TXT + PDF');
             console.log('🧠 PRO: 5 créditos · IA · PDF + DOCX');
             console.log('🎯 DEMO: 1 cada 12h · Solo visualización');
             console.log('💳 Pago: QR Banco Ganadero + WhatsApp');
